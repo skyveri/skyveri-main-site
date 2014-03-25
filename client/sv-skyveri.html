@@ -1,0 +1,92 @@
+<head>
+  <title>Skyveri - Web &amp; Mobile Development Company in Toronto</title>
+  <script type="text/javascript" src="http://fast.fonts.net/jsapi/c54057d2-b964-43d9-b726-65e69e73323e.js"></script>
+</head>
+
+
+<template name="MainLayout">
+<div class="logo {{logoClass}}">Skyveri</div>
+
+{{#each secondLevelPages}}
+  {{> navItem}}
+{{/each}}
+
+{{#each secondaryNavList}}
+  {{> secondaryNav}}
+{{/each}}
+
+{{#each pages}}
+  {{> renderPage}}
+{{/each}}
+</template>
+
+<template name="navItem">
+<div class="navItem {{navItemClass}}" style="{{navItemStyle}}">
+  <a class="navItemCloseBtn" href="/">(X)</a>
+  <a class="navItemNextBtn" href="{{url}}">(>)</a>
+  <a class="navItemLink" href="{{url}}">{{name}}</a>
+</div>
+</template>
+
+<template name="pageDefault">
+<div class="page {{machineName}} {{pageClass}}">
+  {{#if introHeader}}
+    <h1 class="introHeader">{{{introHeader}}}</h1>
+  {{/if}}
+
+  {{#if introText}}
+    <div class="introText">{{{introText}}}</div>
+  {{/if}}
+
+  {{#if contents}}
+    {{#if tagline}}
+      <h2>{{{tagline}}}</h2>
+    {{/if}}
+    {{#if contents.client}}
+      <div><strong>Client: {{{contents.client}}}</strong></div>
+    {{/if}}
+    {{#if contents.agency}}
+      <div><strong>Agency: {{{contents.agency}}}</strong></div>
+    {{/if}}
+    {{#if contents.year}}
+      <div><strong>Year: {{{contents.year}}}</strong></div>
+    {{/if}}
+    {{#if contents.role}}
+      <div><strong>Role: {{{contents.role}}}</strong></div>
+    {{/if}}
+
+    {{#if contents.intro}}
+      <div><strong>{{{contents.intro}}}</strong></div>
+    {{/if}}
+
+    {{#if contents.description}}
+      <div>{{{contents.description}}}</div>
+    {{/if}}
+  {{/if}}
+
+  <div class="social {{socialClass}}">
+    <p>Social and other nonsense goes here.</p>
+    <p>An excerpt from the latest blog post, plus that Facebook and Twitter iconography.</p>
+  </div>
+</div>
+</template>
+
+<template name="pageProcess">
+<div class="page {{machineName}} {{pageClass}}">
+  <h1>PROCESS:</h1>
+</div>
+</template>
+
+<template name="secondaryNav">
+<div class="secondaryNav {{secondaryNavClass}}" style="{{secondaryNavStyle}}">
+  {{#each secondaryPages}}
+    {{> secondaryNavItem}}
+  {{/each}}
+</div>
+</template>
+
+<template name="secondaryNavItem">
+<div class="secondaryNavItem {{secondaryNavItemClass}}" style="{{secondaryNavItemStyle}}">
+  <a class="secondaryNavItemLink" href="{{navItemUrl}}">{{name}}</a>
+</div>
+</template>

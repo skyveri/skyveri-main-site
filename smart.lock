@@ -1,0 +1,27 @@
+{
+  "meteor": {},
+  "dependencies": {
+    "basePackages": {
+      "blaze-layout": {
+        "git": "https://github.com/EventedMind/blaze-layout.git",
+        "branch": "master"
+      },
+      "iron-router": {
+        "git": "https://github.com/EventedMind/iron-router",
+        "branch": "blaze-integration"
+      }
+    },
+    "packages": {
+      "blaze-layout": {
+        "git": "https://github.com/EventedMind/blaze-layout.git",
+        "branch": "master",
+        "commit": "2664f817844fba0fab0455a79bc62782c9091ad0"
+      },
+      "iron-router": {
+        "git": "https://github.com/EventedMind/iron-router",
+        "branch": "blaze-integration",
+        "commit": "947991731df164e56b53cfdae8ef23802d989142"
+      }
+    }
+  }
+}
