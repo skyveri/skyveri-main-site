@@ -7,3 +7,11 @@ services:
   - mongodb
 env: 
   - LAIKA_OPTIONS="-t 5000"
+deploy:
+  provider: opsworks
+  access_key_id: AKIAIEFSC7JATHBJKBQA
+  secret_access_key:
+    secure: AluXtXCK8V/DAKwwbQJBxE0krb0hE0e47yH2vL7QVsUmZ8PDwo+SlXltvP6wMfOlrohLHRisxNl4fubfti42IjmkjKhH5F2SAz6s4TrkgXhnE4BcCnN8znYbA0/WorE9zHHYSw4dOTyvUXVz2ENcMNnaTQUSm7qWAnOtp444vGE=
+  app-id: 9a8b1fe5-21ed-402f-b170-602c20894769
+  on:
+    repo: skyveri/skyveri-main-site
