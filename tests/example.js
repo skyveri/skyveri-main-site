@@ -1,5 +1,7 @@
 var assert = require('assert');
 
+// Just a sample test
+
 suite('Pages', function() {
   test('in the server', function(done, server) {
     server.eval(function() {
