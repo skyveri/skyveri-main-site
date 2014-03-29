@@ -7,16 +7,16 @@
 <template name="MainLayout">
 <div class="logo {{logoClass}}">Skyveri</div>
 
+{{#each pages}}
+  {{> renderPage}}
+{{/each}}
+
 {{#each secondLevelPages}}
   {{> navItem}}
 {{/each}}
 
 {{#each secondaryNavList}}
   {{> secondaryNav}}
-{{/each}}
-
-{{#each pages}}
-  {{> renderPage}}
 {{/each}}
 </template>
 
