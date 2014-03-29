@@ -7,6 +7,11 @@ services:
   - mongodb
 env: 
   - LAIKA_OPTIONS="-t 5000"
+branches:
+  only:
+    - master
+    - test
+    - /^deploy-.*$/
 deploy:
   provider: opsworks
   access_key_id: AKIAIEFSC7JATHBJKBQA
