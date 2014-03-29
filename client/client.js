@@ -1,4 +1,3 @@
-
 Meteor.subscribe("pages");
 
 Session.set("windowWidth", window.innerWidth);
@@ -165,11 +164,11 @@ Template.navItem.navItemStyle = function() {
   if (offsetFromActive === null) {
 
     if ( this.url.startsWith("/portfolio") ) {
-      style.top = "300px";
-    } else if ( this.url.startsWith("/tech") ) {
       style.top = "340px";
-    } else if ( this.url.startsWith("/process") ) {
+    } else if ( this.url.startsWith("/tech") ) {
       style.top = "380px";
+    } else if ( this.url.startsWith("/process") ) {
+      style.top = "300px";
     } else if ( this.url.startsWith("/about") ) {
       style.top = "420px";
     } else if ( this.url.startsWith("/contact") ) {
