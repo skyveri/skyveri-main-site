@@ -63,11 +63,9 @@
     {{/if}}
   {{/if}}
 
-  <div class="social {{socialClass}}">
-    <p>Social and other nonsense goes here.</p>
-    <p>"Latest blog post title" - from our <a href="#">blog</a></p>
-    <p>[f] [t] [g] [in]</p>
-  </div>
+  {{#if social}}
+    <div class="social {{socialClass}}">{{{social}}}</div>
+  {{/if}}
 </div>
 </template>
 
