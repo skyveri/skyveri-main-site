@@ -163,28 +163,14 @@ Template.navItem.navItemStyle = function() {
 
   if (offsetFromActive === null) {
 
-    if ( this.url.startsWith("/portfolio") ) {
-      style.top = "340px";
-    } else if ( this.url.startsWith("/tech") ) {
-      style.top = "380px";
-    } else if ( this.url.startsWith("/process") ) {
-      style.top = "300px";
-    } else if ( this.url.startsWith("/about") ) {
-      style.top = "420px";
-    } else if ( this.url.startsWith("/contact") ) {
-      style.top = "460px";
-    }
+    style.top = 310 + getSiblingIndex(this) * 40 + "px";
 
   } else {
 
-    if (offsetFromActive < 0) {
-      style.top = "-100px";
-    } else if (offsetFromActive === 0) {
-      style.top = "0";
-    } else if (offsetFromActive === 1) {
-      style.top = (Session.get("windowHeight") - 50) + "px";
-    } else if (offsetFromActive > 1) {
-      style.top = "1500px";
+    if (offsetFromActive === 1) {
+      style.top = Session.get("windowHeight") - 50 + "px";
+    } else {
+      style.top = Session.get("windowHeight") * offsetFromActive + "px";
     }
 
   }
@@ -200,16 +186,7 @@ Template.secondaryNav.secondaryNavStyle = function() {
   if (this.length === 0)
     return "";
 
-  var style = {},
-      activeUrl = Session.get("activeUrl");
-
-  if ( activeUrl === "/tech" ) {
-    style.top = "270px";
-  }
-
-  if ( activeUrl === "/process" ) {
-    style.top = "200px";
-  }
+  var style = {};
 
   return inlineStyle(style);
 }
