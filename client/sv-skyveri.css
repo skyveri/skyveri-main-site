@@ -25,8 +25,8 @@ h1 {
 
 .logo {
   position: absolute;
-  top: 10px;
-  left: 20px;
+  top: 373px;
+  left: 30px;
   z-index: 7;
 
   font-size: 20px;
@@ -39,7 +39,7 @@ h1 {
 }
 
 .logo.hidden {
-  top: -30px;
+  top: 10px;
 }
 
 .introHeader {
@@ -71,6 +71,7 @@ h1 {
 .navItem {
   position: absolute;
   z-index: 9;
+  left: 150px;
 
   width: 100%;
 
