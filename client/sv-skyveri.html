@@ -1,10 +1,14 @@
 <head>
   <title>Skyveri - Mobile &amp; Web Development Company in Toronto</title>
+  <!-- <link href='//fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'> -->
+  <link href='http://fonts.googleapis.com/css?family=Raleway:400,200,300,100' rel='stylesheet' type='text/css'>
+  <link href='//fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
+  <link href='//fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css'>
 </head>
 
 
 <template name="MainLayout">
-<div class="logo {{logoClass}}">Skyveri</div>
+<a class="logo {{logoClass}}" href="/">Skyveri</a>
 
 {{#each pages}}
   {{> renderPage}}
@@ -21,20 +25,21 @@
 
 <template name="navItem">
 <div class="navItem {{navItemClass}}" style="{{navItemStyle}}">
-  <a class="navItemCloseBtn" href="/">(X)</a>
-  <a class="navItemNextBtn" href="{{url}}">(>)</a>
+  <!-- <a class="navItemCloseBtn" href="/">(X)</a> -->
+  <!-- <a class="navItemNextBtn" href="{{url}}">(>)</a> -->
   <a class="navItemLink" href="{{url}}">{{name}}</a>
+  <div class="navItemBg"></div>
 </div>
 </template>
 
 <template name="pageDefault">
 <div class="page {{machineName}} {{pageClass}}">
   {{#if introHeader}}
-    <h1 class="introHeader">{{{introHeader}}}</h1>
+    <h1 class="introHeader" style="{{ introHeaderStyle }}">{{{introHeader}}}</h1>
   {{/if}}
 
   {{#if introText}}
-    <div class="introText">{{{introText}}}</div>
+    <div class="introText" style="{{ introTextStyle }}">{{{introText}}}</div>
   {{/if}}
 
   {{#if contents}}

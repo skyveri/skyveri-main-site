@@ -84,7 +84,7 @@ Template.MainLayout.logoClass = function () {
     // The "! homepage" part ensures logo is shown before page initializes
     return "";
   else
-    return "hidden";
+    return "subpage";
 }
 
 Template.MainLayout.secondaryNavList = function () {
@@ -121,6 +121,22 @@ Template.pageDefault.pageClass = function() {
   if (isActivePage(this)) {
     return "pageActive";
   }
+}
+
+Template.pageDefault.introHeaderStyle = function() {
+  var style = {};
+
+  style.top = Session.get("windowHeight") / 2 - 200 + "px";
+
+  return inlineStyle(style);
+}
+
+Template.pageDefault.introTextStyle = function() {
+  var style = {};
+
+  style.top = Session.get("windowHeight") / 2 + 0 + "px";
+
+  return inlineStyle(style);
 }
 
 Template.pageProcess.pageClass = function() {
@@ -163,14 +179,30 @@ Template.navItem.navItemStyle = function() {
 
   if (offsetFromActive === null) {
 
-    style.top = 310 + getSiblingIndex(this) * 40 + "px";
+    // Collapsed (Homepage)
+
+    if (Session.get("windowWidth") > 500) {
+      style.top = Session.get("windowHeight") / 2 - 115 + getSiblingIndex(this) * 40 + "px";
+      style.left = Session.get("windowWidth") * 7 / 10 + "px";
+      style.width = Session.get("windowWidth") * 3 / 10 + "px";
+    } else {
+      style.top = 550 + getSiblingIndex(this) * 40 + "px";
+      style.left = 25 + "px";
+      style.width = Session.get("windowWidth") + "px";
+    }
 
   } else {
 
+    // Expanded (Non-homepage)
+
     if (offsetFromActive === 1) {
-      style.top = Session.get("windowHeight") - 50 + "px";
+      style.top = Session.get("windowHeight") - 37 + "px";
+      style.left = 0 + "px";
+      style.width = Session.get("windowWidth") - 0 + "px";
     } else {
       style.top = Session.get("windowHeight") * offsetFromActive + "px";
+      style.left = 56 + "px";
+      style.width = Session.get("windowWidth") - 56 + "px";
     }
 
   }
