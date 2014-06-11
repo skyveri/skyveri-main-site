@@ -13,7 +13,7 @@ body {
   font-family: 'Open Sans', sans-serif;*/
   font-weight: 300;
   font-size: 19px;
-  color: #fff;
+  color: #555;
 /*
   background: #000 url("/bg2.jpg") 50% 50%;
   background-size: cover;
@@ -26,6 +26,7 @@ body {
   background: -o-linear-gradient(right top, rgba(223, 6, 255, 0.13), rgba(223, 6, 255, 0) 75%, rgba(180, 0, 255, 0.13)), -o-linear-gradient(bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0) 100%), -o-radial-gradient(50% 75%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 70%), -o-linear-gradient(bottom, #165567, #010f34), #010f34;
   background: linear-gradient(right top, rgba(223, 6, 255, 0.13), rgba(223, 6, 255, 0) 75%, rgba(180, 0, 255, 0.13)), linear-gradient(bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0) 100%), radial-gradient(50% 75%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 70%), linear-gradient(bottom, #165567, #010f34), #010f34;
 
+  background: #fff;
 }
 
 b,
@@ -35,16 +36,16 @@ strong {
 }
 
 a {
-  color: #fff;
+  color: #333;
   text-decoration: none;
-  border-bottom: 1px solid rgba(255,255,255,0.3);
+  border-bottom: 1px solid #ddd;
 
   transition: 0.3s;
   -webkit-transition: 0.3s;
 }
 
 a:hover {
-  border-color: #fff;
+  border-color: #000;
 }
 
 h1 {
@@ -104,7 +105,7 @@ h1 {
   font-size: 26px;
   font-weight: 100;
   line-height: 1.5em;
-  color: rgb(215,220,225);
+  color: #888;
 }
 
 .page.pageActive .introHeader {
@@ -146,7 +147,7 @@ h1 {
   z-index: 2;
   display: block;
   margin-left: 10px;
-  padding: 5px 0 3px 13px;
+  padding: 2px 0 7px 13px;
   width: 100%;
   height: 28px;
 
@@ -174,7 +175,7 @@ h1 {
   bottom: 0;
   right: 0;
   z-index: 1;
-  background: rgba(88,100,120,0.9);
+  background: #bbb;
 
   transition: 0.5s;
   -webkit-transition: 0.5s;
