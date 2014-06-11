@@ -1,14 +1,14 @@
 <head>
   <title>Skyveri - Mobile &amp; Web Development Company in Toronto</title>
   <!-- <link href='//fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'> -->
-  <link href='http://fonts.googleapis.com/css?family=Raleway:400,200,300,100' rel='stylesheet' type='text/css'>
+  <link href='//fonts.googleapis.com/css?family=Raleway:400,200,300,100' rel='stylesheet' type='text/css'>
   <link href='//fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
   <link href='//fonts.googleapis.com/css?family=Questrial' rel='stylesheet' type='text/css'>
 </head>
 
 
 <template name="MainLayout">
-<a class="logo {{logoClass}}" href="/">Skyveri</a>
+<a class="logo {{logoClass}}" href="/">&larr;</a>
 
 {{#each pages}}
   {{> renderPage}}
@@ -27,7 +27,7 @@
 <div class="navItem {{navItemClass}}" style="{{navItemStyle}}">
   <!-- <a class="navItemCloseBtn" href="/">(X)</a> -->
   <!-- <a class="navItemNextBtn" href="{{url}}">(>)</a> -->
-  <a class="navItemLink" href="{{url}}">{{name}}</a>
+  <div class="navItemLinkWrapper"><a class="navItemLink" href="{{url}}">{{name}}</a></div>
   <div class="navItemBg"></div>
 </div>
 </template>
@@ -91,6 +91,6 @@
 
 <template name="secondaryNavItem">
 <div class="secondaryNavItem {{secondaryNavItemClass}}" style="{{secondaryNavItemStyle}}">
-  <a class="secondaryNavItemLink" href="{{navItemUrl}}">{{name}}</a>
+  <div class="secondaryNavItemLinkWrapper"><a class="secondaryNavItemLink" href="{{navItemUrl}}">{{name}}</a></div>
 </div>
 </template>

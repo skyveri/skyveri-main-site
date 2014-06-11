@@ -24,7 +24,10 @@ body {
 a {
   color: #fff;
   text-decoration: none;
-  border-bottom: 1px solid rgba(255,255,255,0.5);
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+
+  transition: 0.3s;
+  -webkit-transition: 0.3s;
 }
 
 a:hover {
@@ -45,20 +48,25 @@ h1 {
   top: 0;
   left: -300px;
   z-index: 7;
-  padding: 0;
-  width: 55px;
-  height: 37px;
+  padding: 0 0 0 12px;
+  width: 43px;
+  height: 36px;
 
-  text-indent: -1000px;
-  font-size: 20px;
+  /*text-indent: -1000px;*/
+  font-size: 28px;
   font-weight: 700;
   font-style: italic;
-  color: #fff;
-  background: rgba(88,100,120,0.9);
+  color: rgba(255,255,255,0.7);
+  background: rgba(88,100,120,0.7);
   border: none;
 
-  transition: 1.6s;
-  -webkit-transition: 1.6s;
+  transition: 0.5s;
+  -webkit-transition: 0.5s;
+}
+
+.logo:hover {
+  color: rgba(255,255,255,1);
+  background: rgba(88,100,120,1);
 }
 
 .logo.subpage {
@@ -121,11 +129,11 @@ h1 {
   -webkit-transition: 1.6s;
 }
 
-.navItem .navItemLink {
+.navItem .navItemLinkWrapper {
   position: relative;
   z-index: 2;
   display: block;
-  margin-left: 20px;
+  margin-left: 10px;
   padding: 5px 0 3px 13px;
   width: 100%;
   height: 28px;
@@ -138,14 +146,14 @@ h1 {
   -webkit-transition: 0.5s;
 }
 
-.navItem:hover .navItemLink {
+.navItem:hover .navItemLinkWrapper {
   margin-left: 0;
 }
 
-.navItemActive:hover .navItemLink,
-.navItemHasActive:hover .navItemLink,
-.navItemNext:hover .navItemLink {
-  margin-left: 20px;
+.navItemActive:hover .navItemLinkWrapper,
+.navItemHasActive:hover .navItemLinkWrapper,
+.navItemNext:hover .navItemLinkWrapper {
+  margin-left: 10px;
 }
 
 .navItem .navItemBg {
@@ -177,34 +185,9 @@ h1 {
   left: 0;
 }
 
-.navItemCloseBtn,
-.navItemNextBtn {
-  position: absolute;
-  top: 0;
+.navItemNext .navItemBg {
   left: 0;
-  z-index: 0;
-
-  padding: 10px 0 0 10px;
-  opacity: 0;
-  color: #fff;
-
-  transition: 1.2s;
-  -webkit-transition: 1.2s;
-}
-
-.navItemCloseBtn:hover,
-.navItemNextBtn:hover {
-  border-color: transparent;
-}
-
-.navItemHasActive .navItemCloseBtn {
-  opacity: 1;
-  z-index: 1;
-}
-
-.navItemNext .navItemNextBtn {
-  opacity: 1;
-  z-index: 1;
+  background: rgba(31,41,82,1);
 }
 
 .page {
@@ -257,7 +240,7 @@ h1 {
   -webkit-transition: 1.2s;
 }
 
-.secondaryNavItem .secondaryNavItemLink {
+.secondaryNavItem .secondaryNavItemLinkWrapper {
   display: block;
   width: 97%;
   padding-top: 6px;
@@ -265,10 +248,10 @@ h1 {
   height: 24px;
 }
 
-.secondaryNavItem .secondaryNavItemLink:hover {
+.secondaryNavItem .secondaryNavItemLinkWrapper:hover {
 }
 
-.secondaryNavItemActive .secondaryNavItemLink {
-  background: #333;
+.secondaryNavItemActive .secondaryNavItemLinkWrapper {
+  background: rgba(37,56,82,1);
   cursor: default;
 }
