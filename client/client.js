@@ -126,7 +126,7 @@ Template.pageDefault.pageClass = function() {
 Template.pageDefault.introHeaderStyle = function() {
   var style = {};
 
-  style.top = Session.get("windowHeight") / 2 - 200 + "px";
+  style.top = Session.get("windowHeight") / 2 - 220 + "px";
 
   return inlineStyle(style);
 }
@@ -134,7 +134,7 @@ Template.pageDefault.introHeaderStyle = function() {
 Template.pageDefault.introTextStyle = function() {
   var style = {};
 
-  style.top = Session.get("windowHeight") / 2 + 0 + "px";
+  style.top = Session.get("windowHeight") / 2 - 20 + "px";
 
   return inlineStyle(style);
 }
@@ -182,7 +182,7 @@ Template.navItem.navItemStyle = function() {
     // Collapsed (Homepage)
 
     if (Session.get("windowWidth") > 500) {
-      style.top = Session.get("windowHeight") / 2 - 115 + getSiblingIndex(this) * 40 + "px";
+      style.top = Session.get("windowHeight") / 2 - 121 + getSiblingIndex(this) * 40 + "px";
       style.left = Session.get("windowWidth") * 7 / 10 + "px";
       style.width = Session.get("windowWidth") * 3 / 10 + "px";
     } else {
