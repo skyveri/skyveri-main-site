@@ -215,6 +215,14 @@ Template.navItem.navItemStyle = function() {
   return inlineStyle(style);
 }
 
+Template.navItem.url = function() {
+  if (this.url === '/why-choose-us') {
+    return '/why-choose-us/faster';
+  } else {
+    return this.url;
+  }
+}
+
 Template.secondaryNav.secondaryPages = function() {
   return this;
 }
@@ -259,7 +267,7 @@ Template.secondaryNavItem.secondaryNavItemStyle = function() {
     style.left = 250 + (Session.get("windowWidth") - 500) * getSiblingIndex(this) / numberOfSiblings(this) + "px";
     style.width = (Session.get("windowWidth") - 500) / numberOfSiblings(this) - 10 + "px";
   } else if (activeUrl.startsWith("/portfolio")) {
-    style.top = -100 + "px";
+    style.top = -300 + "px";
     style.left = Session.get("windowWidth") * getSiblingIndex(this) / numberOfSiblings(this) + "px";
     style.width = Session.get("windowWidth") / numberOfSiblings(this) - 10 + "px";
   } else {

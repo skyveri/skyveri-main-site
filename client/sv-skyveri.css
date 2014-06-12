@@ -13,7 +13,8 @@ body {
   font-family: 'Open Sans', sans-serif;*/
   font-weight: 300;
   font-size: 24px;
-  color: #555;
+  color: #333;
+  cursor: default;
 /*
   background: #000 url("/bg2.jpg") 50% 50%;
   background-size: cover;
@@ -105,6 +106,28 @@ h1 {
   font-size: 26px;
   font-weight: 100;
   line-height: 1.5em;
+}
+
+.swapperHere,
+.swapperFuture {
+  transition: 0.9s;
+  -webkit-transition: 0.9s;
+}
+
+.swapperHere {
+  position: absolute;
+  z-index: 2;
+  color: #F7070B;
+  opacity: 0;
+  border-bottom: none;
+}
+
+.introHeader:hover .swapperHere {
+  opacity: 1;
+}
+
+.introHeader:hover .swapperFuture {
+  opacity: 0;
 }
 
 .page.pageActive .introHeader {

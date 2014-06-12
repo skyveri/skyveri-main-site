@@ -29,8 +29,6 @@
 
 <template name="navItem">
 <div class="navItem {{navItemClass}}" style="{{navItemStyle}}">
-  <!-- <a class="navItemCloseBtn" href="/">(X)</a> -->
-  <!-- <a class="navItemNextBtn" href="{{url}}">(>)</a> -->
   <div class="navItemLinkWrapper"><a class="navItemLink" href="{{url}}">{{name}}</a></div>
   <div class="navItemBg"></div>
 </div>
@@ -39,7 +37,7 @@
 <template name="pageDefault">
 <div class="page {{machineName}} {{pageClass}}">
   {{#if introHeader}}
-    <h1 class="introHeader" style="{{ introHeaderStyle }}">/ {{{introHeader}}}</h1>
+    <h1 class="introHeader" style="{{ introHeaderStyle }}">/ Fast is <a href="/why-choose-us/faster" class="swapperHere">here.</a><span class="swapperFuture">future</span></h1>
   {{/if}}
 
   {{#if introText}}
