@@ -181,7 +181,7 @@ Template.navItem.navItemStyle = function() {
 
     // Collapsed (Homepage)
 
-    if (Session.get("windowWidth") > 500) {
+    if (Session.get("windowWidth") > 1300) {
       style.top = Session.get("windowHeight") / 2 - 121 + getSiblingIndex(this) * 40 + "px";
       style.left = Session.get("windowWidth") * 7 / 10 + "px";
       style.width = Session.get("windowWidth") * 3 / 10 + "px";
@@ -189,6 +189,11 @@ Template.navItem.navItemStyle = function() {
       style.top = 550 + getSiblingIndex(this) * 40 + "px";
       style.left = 25 + "px";
       style.width = Session.get("windowWidth") + "px";
+    }
+
+    // Bold the first nav item
+    if (getSiblingIndex(this) === 0) {
+      style["font-weight"] = "400";
     }
 
   } else {
@@ -250,11 +255,17 @@ Template.secondaryNavItem.secondaryNavItemStyle = function() {
       activeUrl = Session.get("activeUrl");
 
   if (activeUrl === "/portfolio") {
-    style.top = (getSiblingIndex(this) + 1) * 100 + "px";
-    style.left = 0;
+    style.top = Session.get("windowHeight") / 2 - 100 + "px";
+    style.left = 250 + (Session.get("windowWidth") - 500) * getSiblingIndex(this) / numberOfSiblings(this) + "px";
+    style.width = (Session.get("windowWidth") - 500) / numberOfSiblings(this) - 10 + "px";
+  } else if (activeUrl.startsWith("/portfolio")) {
+    style.top = -100 + "px";
+    style.left = Session.get("windowWidth") * getSiblingIndex(this) / numberOfSiblings(this) + "px";
+    style.width = Session.get("windowWidth") / numberOfSiblings(this) - 10 + "px";
   } else {
     style.top = 0;
     style.left = Session.get("windowWidth") * getSiblingIndex(this) / numberOfSiblings(this) + "px";
+    style.width = Session.get("windowWidth") / numberOfSiblings(this) - 10 + "px";
   }
 
   return inlineStyle(style);

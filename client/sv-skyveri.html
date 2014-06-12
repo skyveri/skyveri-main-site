@@ -7,11 +7,12 @@
   <link href='//fonts.googleapis.com/css?family=Roboto:400,500,300,100,700' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
   <link href='//fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 </head>
 
 
 <template name="MainLayout">
-<a class="logo {{logoClass}}" href="/">&larr;</a>
+<a class="logo {{logoClass}}" href="/">S</a>
 
 {{#each pages}}
   {{> renderPage}}
@@ -47,19 +48,7 @@
 
   {{#if contents}}
     {{#if tagline}}
-      <h2>{{{tagline}}}</h2>
-    {{/if}}
-    {{#if contents.client}}
-      <div><strong>Client: {{{contents.client}}}</strong></div>
-    {{/if}}
-    {{#if contents.agency}}
-      <div><strong>Agency: {{{contents.agency}}}</strong></div>
-    {{/if}}
-    {{#if contents.year}}
-      <div><strong>Year: {{{contents.year}}}</strong></div>
-    {{/if}}
-    {{#if contents.role}}
-      <div><strong>Role: {{{contents.role}}}</strong></div>
+      <h1>{{{tagline}}}</h1>
     {{/if}}
 
     {{#if contents.intro}}
@@ -67,7 +56,7 @@
     {{/if}}
 
     {{#if contents.description}}
-      <div>{{{contents.description}}}</div>
+      <div class="pageDescription">{{{contents.description}}}</div>
     {{/if}}
   {{/if}}
 

@@ -12,7 +12,7 @@ body {
   /*font-family: 'Lato', sans-serif;
   font-family: 'Open Sans', sans-serif;*/
   font-weight: 300;
-  font-size: 19px;
+  font-size: 24px;
   color: #555;
 /*
   background: #000 url("/bg2.jpg") 50% 50%;
@@ -49,11 +49,10 @@ a:hover {
 }
 
 h1 {
-  font-size: 32px;
-  font-weight: 200;
-  text-transform: uppercase;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
+  font-size: 42px;
+  font-weight: 300;
+  /*text-rendering: optimizeLegibility;*/
+  /*-webkit-font-smoothing: antialiased;*/
 }
 
 .logo {
@@ -61,16 +60,16 @@ h1 {
   top: 0;
   left: -300px;
   z-index: 7;
-  padding: 0 0 0 12px;
-  width: 43px;
-  height: 36px;
+  padding: 0 0 0 15px;
+  width: 40px;
+  height: 37px;
 
   /*text-indent: -1000px;*/
   font-size: 28px;
   font-weight: 700;
   font-style: italic;
   color: rgba(255,255,255,0.7);
-  background: rgba(88,100,120,0.7);
+  background: rgba(88,100,120,0.3);
   border: none;
 
   transition: 0.5s;
@@ -91,21 +90,21 @@ h1 {
   position: absolute;
   left: -1000px;
 
-  transition: 1.6s;
-  -webkit-transition: 1.6s;
+  transition: 0.9s;
+  -webkit-transition: 0.9s;
 }
 
 .introHeader {
   max-width: 900px;
   font-size: 100px;
   font-weight: 100;
+  text-transform: uppercase;
 }
 
 .introText {
   font-size: 26px;
   font-weight: 100;
   line-height: 1.5em;
-  color: #888;
 }
 
 .page.pageActive .introHeader {
@@ -125,8 +124,8 @@ h1 {
   color: #666;
   opacity: 0;
 
-  transition: 1.6s;
-  -webkit-transition: 1.6s;
+  transition: 0.9s;
+  -webkit-transition: 0.9s;
 }
 
 .social.sociallyActive {
@@ -138,8 +137,11 @@ h1 {
   position: absolute;
   z-index: 9;
 
-  transition: 1.6s;
-  -webkit-transition: 1.6s;
+  font-weight: 300;
+  font-size: 22px;
+
+  transition: 0.9s;
+  -webkit-transition: 0.9s;
 }
 
 .navItem .navItemLinkWrapper {
@@ -150,9 +152,6 @@ h1 {
   padding: 2px 0 7px 13px;
   width: 100%;
   height: 28px;
-
-  font-weight: 100;
-  font-size: 22px;
 
   transition: 0.5s;
   -webkit-transition: 0.5s;
@@ -175,7 +174,7 @@ h1 {
   bottom: 0;
   right: 0;
   z-index: 1;
-  background: #bbb;
+  background: rgba(31,41,82,0.1);
 
   transition: 0.5s;
   -webkit-transition: 0.5s;
@@ -183,6 +182,13 @@ h1 {
 
 .navItem:hover .navItemBg {
   left: 0;
+}
+
+.navItem .navItemLink {
+}
+
+.navItemHasActive .navItemLink {
+  border-color: #333;
 }
 
 .navItemActive .navItemLink,
@@ -199,14 +205,14 @@ h1 {
 
 .navItemNext .navItemBg {
   left: 0;
-  background: rgba(31,41,82,1);
+  background: rgba(31,41,82,0.1);
 }
 
 .page {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 10px;
+  left: 15px;
   right: 0;
   z-index: 1;
   overflow: scroll;
@@ -223,6 +229,10 @@ h1 {
 .page.pageActive {
   opacity: 1;
   z-index: 2;
+}
+
+.pageDescription {
+  width: 40%;
 }
 
 .secondaryNav {
@@ -245,25 +255,19 @@ h1 {
 
 .secondaryNavItem {
   position: absolute;
-  width: 24.5%;
-  height: 35px;
 
   transition: 1.2s;
   -webkit-transition: 1.2s;
 }
 
 .secondaryNavItem .secondaryNavItemLinkWrapper {
-  display: block;
-  width: 97%;
-  padding-top: 6px;
-  padding-left: 2%;
-  height: 24px;
+  padding: 6px 0 6px 5px;
 }
 
 .secondaryNavItem .secondaryNavItemLinkWrapper:hover {
 }
 
 .secondaryNavItemActive .secondaryNavItemLinkWrapper {
-  background: rgba(37,56,82,1);
+  background: rgba(37,56,82,0.1);
   cursor: default;
 }
