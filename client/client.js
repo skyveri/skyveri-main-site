@@ -15,6 +15,8 @@ window.onresize = function (argument) {
 var homepage = null;
 var activePage = null;
 var activePages = [];
+var WIDE_SCREEN_WIDTH = 1300;
+var INTRO_HEADER_BREAK_WIDTH = 830;
 
 // homepage
 
@@ -123,10 +125,26 @@ Template.pageDefault.pageClass = function() {
   }
 }
 
+Template.pageDefault.introHeaderClass = function() {
+  if (Session.get("windowWidth") < INTRO_HEADER_BREAK_WIDTH) {
+    return "introHeaderSmall";
+  }
+}
+
 Template.pageDefault.introHeaderStyle = function() {
   var style = {};
 
-  style.top = Session.get("windowHeight") / 2 - 220 + "px";
+  if (Session.get("windowWidth") > WIDE_SCREEN_WIDTH) {
+    style.top = Session.get("windowHeight") / 2 - 220 + "px";
+  } else if (Session.get("windowWidth") > INTRO_HEADER_BREAK_WIDTH) {
+    style.top = 0 + "px";
+  } else {
+    style.top = 0 + "px";
+    style.left = 0 + "px";
+    style.width = Session.get("windowWidth") - 30 + "px";
+    style['line-height'] = 80 + "px";
+    style['font-size'] = 75 + "px";
+  }
 
   return inlineStyle(style);
 }
@@ -134,7 +152,17 @@ Template.pageDefault.introHeaderStyle = function() {
 Template.pageDefault.introTextStyle = function() {
   var style = {};
 
-  style.top = Session.get("windowHeight") / 2 - 20 + "px";
+  if (Session.get("windowWidth") > WIDE_SCREEN_WIDTH) {
+    style.top = Session.get("windowHeight") / 2 - 20 + "px";
+    style.left = 76 + "px";
+  } else if (Session.get("windowWidth") > INTRO_HEADER_BREAK_WIDTH) {
+    style.top = 200 + "px";
+    style.left = 76 + "px";
+  } else {
+    style.top = 250 + "px";
+    style.left = 5 + "px";
+    style.width = Session.get("windowWidth") - 30 + "px";
+  }
 
   return inlineStyle(style);
 }
@@ -181,13 +209,17 @@ Template.navItem.navItemStyle = function() {
 
     // Collapsed (Homepage)
 
-    if (Session.get("windowWidth") > 1300) {
+    if (Session.get("windowWidth") > WIDE_SCREEN_WIDTH) {
       style.top = Session.get("windowHeight") / 2 - 121 + getSiblingIndex(this) * 40 + "px";
       style.left = Session.get("windowWidth") * 7 / 10 + "px";
       style.width = Session.get("windowWidth") * 3 / 10 + "px";
+    } else if (Session.get("windowWidth") > INTRO_HEADER_BREAK_WIDTH) {
+      style.top = 350 + getSiblingIndex(this) * 40 + "px";
+      style.left = 73 + "px";
+      style.width = Session.get("windowWidth") + "px";
     } else {
-      style.top = 550 + getSiblingIndex(this) * 40 + "px";
-      style.left = 25 + "px";
+      style.top = 420 + getSiblingIndex(this) * 40 + "px";
+      style.left = 0 + "px";
       style.width = Session.get("windowWidth") + "px";
     }
 

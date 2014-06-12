@@ -102,6 +102,10 @@ h1 {
   text-transform: uppercase;
 }
 
+.introHeaderSmall .slash {
+  display: none;
+}
+
 .introText {
   font-size: 26px;
   font-weight: 100;
