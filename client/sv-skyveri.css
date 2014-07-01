@@ -112,26 +112,13 @@ h1 {
   line-height: 1.5em;
 }
 
-.swapperHere,
 .swapperFuture {
   transition: 0.9s;
   -webkit-transition: 0.9s;
 }
 
-.swapperHere {
-  position: absolute;
-  z-index: 2;
+.swapperFuture {
   color: #F7070B;
-  opacity: 0;
-  border-bottom: none;
-}
-
-.introHeader:hover .swapperHere {
-  opacity: 1;
-}
-
-.introHeader:hover .swapperFuture {
-  opacity: 0;
 }
 
 .page.pageActive .introHeader {

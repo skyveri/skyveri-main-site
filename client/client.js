@@ -210,7 +210,7 @@ Template.navItem.navItemStyle = function() {
     // Collapsed (Homepage)
 
     if (Session.get("windowWidth") > WIDE_SCREEN_WIDTH) {
-      style.top = Session.get("windowHeight") / 2 - 121 + getSiblingIndex(this) * 40 + "px";
+      style.top = Session.get("windowHeight") / 2 - 123 + getSiblingIndex(this) * 40 + "px";
       style.left = Session.get("windowWidth") * 7 / 10 + "px";
       style.width = Session.get("windowWidth") * 3 / 10 + "px";
     } else if (Session.get("windowWidth") > INTRO_HEADER_BREAK_WIDTH) {
