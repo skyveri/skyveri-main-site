@@ -188,7 +188,7 @@ h1 {
   bottom: 0;
   right: 0;
   z-index: 1;
-  background: rgba(31,41,82,0.1);
+  background: rgba(230,230,230,0.95);
 
   transition: 0.5s;
   -webkit-transition: 0.5s;
@@ -219,7 +219,7 @@ h1 {
 
 .navItemNext .navItemBg {
   left: 0;
-  background: rgba(31,41,82,0.1);
+  background: rgba(230,230,230,0.95);
 }
 
 .page {
@@ -276,12 +276,13 @@ h1 {
 
 .secondaryNavItem .secondaryNavItemLinkWrapper {
   padding: 6px 0 6px 5px;
+  background: rgba(255,255,255,0.95);
 }
 
 .secondaryNavItem .secondaryNavItemLinkWrapper:hover {
 }
 
 .secondaryNavItemActive .secondaryNavItemLinkWrapper {
-  background: rgba(37,56,82,0.1);
+  background: rgba(230,230,230,0.95);
   cursor: default;
 }
