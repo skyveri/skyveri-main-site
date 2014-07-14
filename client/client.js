@@ -15,7 +15,7 @@ window.onresize = function (argument) {
 var homepage = null;
 var activePage = null;
 var activePages = [];
-var WIDE_SCREEN_WIDTH = 1300;
+var WIDE_SCREEN_WIDTH = 1000;
 var INTRO_HEADER_BREAK_WIDTH = 830;
 
 // homepage
@@ -120,9 +120,17 @@ Template.pageDefault.socialClass = function() {
 }
 
 Template.pageDefault.pageClass = function() {
-  if (isActivePage(this)) {
-    return "pageActive";
+  var cls = "";
+
+  if (this.cls) {
+    cls += this.cls.join(" ");
   }
+
+  if (isActivePage(this)) {
+    cls += " pageActive";
+  }
+
+  return cls;
 }
 
 Template.pageDefault.introHeaderClass = function() {
@@ -135,16 +143,17 @@ Template.pageDefault.introHeaderStyle = function() {
   var style = {};
 
   if (Session.get("windowWidth") > WIDE_SCREEN_WIDTH) {
-    style.top = Session.get("windowHeight") / 2 - 220 + "px";
+    style['top'] = Session.get("windowHeight") / 2 - 220 + "px";
   } else if (Session.get("windowWidth") > INTRO_HEADER_BREAK_WIDTH) {
-    style.top = 0 + "px";
+    style['top'] = 0 + "px";
   } else {
-    style.top = 0 + "px";
-    style.left = 0 + "px";
-    style.width = Session.get("windowWidth") - 30 + "px";
+    style['top'] = 0 + "px";
+    style['left'] = 0 + "px";
+    style['width'] = Session.get("windowWidth") - 30 + "px";
     style['line-height'] = 80 + "px";
-    style['font-size'] = 75 + "px";
   }
+
+  style['font-size'] = getInterpolated(Session.get("windowWidth"), 1000, 75, 1400, 100) + "px";
 
   return inlineStyle(style);
 }
@@ -230,12 +239,12 @@ Template.navItem.navItemStyle = function() {
 
   } else {
 
-    // Expanded (Non-homepage)
-
     if (offsetFromActive === 1) {
-      style.top = Session.get("windowHeight") - 37 + "px";
+      style.top = Session.get("windowHeight") - 47 + "px";
+      style['padding-bottom'] = 10 + "px";
       style.left = 0 + "px";
       style.width = Session.get("windowWidth") - 0 + "px";
+      style['font-weight'] = "400";
     } else {
       style.top = Session.get("windowHeight") * offsetFromActive + "px";
       style.left = 56 + "px";
@@ -243,6 +252,8 @@ Template.navItem.navItemStyle = function() {
     }
 
   }
+
+  style['font-size'] = getInterpolated(Session.get("windowWidth"), 1000, 20, 1400, 22) + "px";
 
   return inlineStyle(style);
 }
@@ -259,15 +270,6 @@ Template.secondaryNav.secondaryPages = function() {
   return this;
 }
 
-Template.secondaryNav.secondaryNavStyle = function() {
-  if (this.length === 0)
-    return "";
-
-  var style = {};
-
-  return inlineStyle(style);
-}
-
 Template.secondaryNav.secondaryNavClass = function() {
   if (this.length === 0)
     return "";
@@ -278,6 +280,17 @@ Template.secondaryNav.secondaryNavClass = function() {
   // If parentId is in activePageIds
   if ( _.find(activePageIds, function(id){ return EJSON.equals(parentId, id); }) )
     return "secondaryNavActive";
+}
+
+Template.secondaryNav.secondaryNavStyle = function() {
+  if (this.length === 0)
+    return "";
+
+  var style = {};
+
+  style['font-size'] = getInterpolated(Session.get("windowWidth"), 400, 16, 1000, 19) + "px";
+
+  return inlineStyle(style);
 }
 
 Template.secondaryNavItem.navItemUrl = function() {
@@ -295,17 +308,86 @@ Template.secondaryNavItem.secondaryNavItemStyle = function() {
       activeUrl = Session.get("activeUrl");
 
   if (activeUrl === "/portfolio") {
-    style.top = Session.get("windowHeight") / 2 - 100 + "px";
-    style.left = 250 + (Session.get("windowWidth") - 500) * getSiblingIndex(this) / numberOfSiblings(this) + "px";
-    style.width = (Session.get("windowWidth") - 500) / numberOfSiblings(this) - 10 + "px";
-  } else if (activeUrl.startsWith("/portfolio")) {
-    style.top = -300 + "px";
+    style.top = Session.get("windowHeight") / 2 - 150 + "px";
     style.left = Session.get("windowWidth") * getSiblingIndex(this) / numberOfSiblings(this) + "px";
     style.width = Session.get("windowWidth") / numberOfSiblings(this) - 10 + "px";
+  // } else if (activeUrl.startsWith("/portfolio")) {
+  //   style.top = -300 + "px";
+  //   style.left = Session.get("windowWidth") * getSiblingIndex(this) / numberOfSiblings(this) + "px";
+  //   style.width = Session.get("windowWidth") / numberOfSiblings(this) - 10 + "px";
   } else {
     style.top = 0;
     style.left = Session.get("windowWidth") * getSiblingIndex(this) / numberOfSiblings(this) + "px";
-    style.width = Session.get("windowWidth") / numberOfSiblings(this) - 10 + "px";
+    style.width = Session.get("windowWidth") / numberOfSiblings(this) - 3 + "px";
+  }
+
+  return inlineStyle(style);
+}
+
+Template.secondaryNavItem.secondaryNavItemLinkWrapperStyle = function() {
+  var style = {},
+      activeUrl = Session.get("activeUrl");
+
+  return inlineStyle(style);
+}
+
+Template.secondaryNavItem.secondaryNavItemLinkStyle = function() {
+  var style = {},
+      activeUrl = Session.get("activeUrl");
+
+  if (activeUrl === "/portfolio") {
+    style['height'] = '150px';
+    style['border-bottom-color'] = "transparent";
+  } else {
+    style['height'] = '37px';
+  }
+
+  return inlineStyle(style);
+}
+
+Template.secondaryNavItem.secondaryNavItemLinkNameStyle = function() {
+  var style = {},
+      activeUrl = Session.get("activeUrl");
+
+  if (activeUrl === "/portfolio") {
+    style['margin-top'] = '-30px';
+    style['opacity'] = '0';
+  } else {
+    style['margin-top'] = '0';
+    style['opacity'] = '1';
+  }
+
+  if (activeUrl === "/portfolio") {
+    style['background'] = "rgba(255,255,255,1)";
+  } else if (activeUrl.startsWith("/portfolio") && activeUrl !== this.url) {
+    // style['background'] = "rgba(255,255,255,0.95)";
+  }
+
+  return inlineStyle(style);
+}
+
+Template.secondaryNavItem.secondaryNavItemLinkImgStyle = function() {
+  var style = {},
+      activeUrl = Session.get("activeUrl");
+
+  if (activeUrl === "/portfolio") {
+    style['margin-top'] = '30px';
+    // style['opacity'] = '1';
+  } else {
+    style['margin-top'] = '0';
+    // style['opacity'] = '0';
+  }
+
+  if (this.url === "/portfolio/tomorrow-world") {
+    style['padding-top'] = '10px';
+    style['width'] = '60%';
+    style['max-width'] = '200px';
+  } else if (this.url === "/portfolio/centric-health") {
+    style['width'] = '95%';
+    style['max-width'] = '300px';
+  } else if (this.url === "/portfolio/jakavi") {
+    style['width'] = '100%';
+    style['max-width'] = '300px';
   }
 
   return inlineStyle(style);
@@ -392,6 +474,21 @@ function getPageIdByUrl(url) {
 function getNextPage(page) {
   if (page)
     return Pages.findOne( { parent: page.parent, sortOrder: { $gt: page.sortOrder } } , { sort: { sortOrder:  1 } } );
+}
+
+function getInterpolated(x, x1, y1, x2, y2, truncateMin, truncateMax) {
+  var y = (y2 - y1) / (x2 - x1) * (x - x1) + y1;
+
+  if (truncateMin === undefined) truncateMin = true;
+  if (truncateMax === undefined) truncateMax = true;
+
+  if (truncateMin && y < y1) {
+    return y1;
+  } else if (truncateMax && y > y2) {
+    return y2;
+  } else {
+    return y;
+  }
 }
 
 inlineStyle = function(styleObj) {

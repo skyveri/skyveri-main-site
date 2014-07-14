@@ -36,31 +36,33 @@
 
 <template name="pageDefault">
 <div class="page {{machineName}} {{pageClass}}">
-  {{#if introHeader}}
-    <h1 class="introHeader {{ introHeaderClass }}" style="{{ introHeaderStyle }}"><span class="slash">/</span> Fast is&nbsp;<span class="swapperFuture">future</span></h1>
-  {{/if}}
-
-  {{#if introText}}
-    <div class="introText" style="{{ introTextStyle }}">We build high quality apps and&nbsp;websites fast.<br />We are Skyveri.</div>
-  {{/if}}
-
-  {{#if contents}}
-    {{#if tagline}}
-      <h1>{{{tagline}}}</h1>
+  <div class="pageContent">
+    {{#if introHeader}}
+      <h1 class="introHeader {{ introHeaderClass }}" style="{{ introHeaderStyle }}"><span class="slash">/</span> Fast is&nbsp;<span class="swapperFuture">future</span></h1>
     {{/if}}
 
-    {{#if contents.intro}}
-      <div><strong>{{{contents.intro}}}</strong></div>
+    {{#if introText}}
+      <div class="introText" style="{{ introTextStyle }}">We build high quality apps and&nbsp;websites fast.<br />We are Skyveri.</div>
     {{/if}}
 
-    {{#if contents.description}}
-      <div class="pageDescription">{{{contents.description}}}</div>
-    {{/if}}
-  {{/if}}
+    {{#if contents}}
+      {{#if tagline}}
+        <h1>{{{tagline}}}</h1>
+      {{/if}}
 
-  {{#if social}}
-    <div class="social {{socialClass}}">{{{social}}}</div>
-  {{/if}}
+      {{#if contents.intro}}
+        <div><strong>{{{contents.intro}}}</strong></div>
+      {{/if}}
+
+      {{#if contents.description}}
+        <div class="pageDescription">{{{contents.description}}}</div>
+      {{/if}}
+    {{/if}}
+
+    {{#if social}}
+      <div class="social {{socialClass}}">{{{social}}}</div>
+    {{/if}}
+  </div>
 </div>
 </template>
 
@@ -81,6 +83,15 @@
 
 <template name="secondaryNavItem">
 <div class="secondaryNavItem {{secondaryNavItemClass}}" style="{{secondaryNavItemStyle}}">
-  <div class="secondaryNavItemLinkWrapper"><a class="secondaryNavItemLink" href="{{navItemUrl}}">{{name}}</a></div>
+  <div class="secondaryNavItemLinkWrapper" style="{{secondaryNavItemLinkWrapperStyle}}">
+    <a class="secondaryNavItemLink" style="{{secondaryNavItemLinkStyle}}" href="{{navItemUrl}}">
+      {{#if name}}
+        <div class="secondaryNavItemLinkName" style="{{secondaryNavItemLinkNameStyle}}">{{name}}</div>
+      {{/if}}
+      {{#if linkImg}}
+        <div class="secondaryNavItemLinkImg" style="{{secondaryNavItemLinkImgStyle}}"><img src='{{linkImg}}' /></div>
+      {{/if}}
+    </a>
+  </div>
 </div>
 </template>
