@@ -16,14 +16,13 @@ body {
   background: #000 url("/bg2.jpg") 50% 50%;
   background-size: cover;
 */
-
-
+/*
   background: -webkit-gradient(linear, 100% 0%, 0% 100%, color-stop(0%, rgba(223, 6, 255, 0.13)), color-stop(75%, rgba(223, 6, 255, 0)), color-stop(100%, rgba(180, 0, 255, 0.13))), -webkit-gradient(linear, 50% 100%, 50% 0%, color-stop(0%, rgba(0, 0, 0, 0.6)), color-stop(30%, rgba(0, 0, 0, 0)), color-stop(100%, rgba(0, 0, 0, 0))), -webkit-gradient(radial, 50% 75%, 0, 50% 75%, 70, color-stop(0%, rgba(255, 255, 255, 0.1)), color-stop(70%, rgba(255, 255, 255, 0))), -webkit-gradient(linear, 50% 100%, 50% 0%, color-stop(0%, #165567), color-stop(100%, #010f34)), #010f34;
   background: -webkit-linear-gradient(right top, rgba(223, 6, 255, 0.13), rgba(223, 6, 255, 0) 75%, rgba(180, 0, 255, 0.13)), -webkit-linear-gradient(bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0) 100%), -webkit-radial-gradient(50% 75%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 70%), -webkit-linear-gradient(bottom, #165567, #010f34), #010f34;
   background: -moz-linear-gradient(right top, rgba(223, 6, 255, 0.13), rgba(223, 6, 255, 0) 75%, rgba(180, 0, 255, 0.13)), -moz-linear-gradient(bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0) 100%), -moz-radial-gradient(50% 75%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 70%), -moz-linear-gradient(bottom, #165567, #010f34), #010f34;
   background: -o-linear-gradient(right top, rgba(223, 6, 255, 0.13), rgba(223, 6, 255, 0) 75%, rgba(180, 0, 255, 0.13)), -o-linear-gradient(bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0) 100%), -o-radial-gradient(50% 75%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 70%), -o-linear-gradient(bottom, #165567, #010f34), #010f34;
   background: linear-gradient(right top, rgba(223, 6, 255, 0.13), rgba(223, 6, 255, 0) 75%, rgba(180, 0, 255, 0.13)), linear-gradient(bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0) 100%), radial-gradient(50% 75%, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 70%), linear-gradient(bottom, #165567, #010f34), #010f34;
-
+*/
   background: #fff;
 }
 
@@ -48,8 +47,6 @@ a:hover {
 h1 {
   font-size: 42px;
   font-weight: 300;
-  /*text-rendering: optimizeLegibility;*/
-  /*-webkit-font-smoothing: antialiased;*/
 }
 
 h2 {
@@ -66,11 +63,8 @@ h2 {
   width: 95px;
   height: 34px;
 
-  /*text-indent: -1000px;*/
   font-size: 23px;
   letter-spacing: 1px;
-  /*font-weight: 700;*/
-  /*font-style: italic;*/
   color: rgba(255,255,255,0.7);
   background: rgba(88,100,120,0.7);
   border: none;
