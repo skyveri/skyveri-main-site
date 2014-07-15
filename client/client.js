@@ -176,10 +176,22 @@ Template.pageDefault.introTextStyle = function() {
   return inlineStyle(style);
 }
 
-Template.pageProcess.pageClass = function() {
-  if (isActivePage(this)) {
-    return "pageActive";
+Template.pageWhyUs.pageClass = function() {
+  var cls = "";
+
+  if (this.cls) {
+    cls += this.cls.join(" ");
   }
+
+  if (isActivePage(this)) {
+    cls += " pageActive";
+  }
+
+  return cls;
+}
+
+Template.pageWhyUs.nextPage = function() {
+  return getNextPage(this);
 }
 
 Template.navItem.navItemClass = function() {
@@ -247,7 +259,7 @@ Template.navItem.navItemStyle = function() {
       style['font-weight'] = "400";
     } else {
       style.top = Session.get("windowHeight") * offsetFromActive + "px";
-      style.left = 56 + "px";
+      style.left = 111 + "px";
       style.width = Session.get("windowWidth") - 56 + "px";
     }
 
@@ -388,6 +400,10 @@ Template.secondaryNavItem.secondaryNavItemLinkImgStyle = function() {
   } else if (this.url === "/portfolio/jakavi") {
     style['width'] = '100%';
     style['max-width'] = '300px';
+  } else if (this.url === "/portfolio/geosoft") {
+    style['padding-top'] = '10px';
+    style['width'] = '70%';
+    style['max-width'] = '200px';
   }
 
   return inlineStyle(style);

@@ -8,7 +8,7 @@
 
 
 <template name="MainLayout">
-<a class="logo {{logoClass}}" href="/">S</a>
+<a class="logo {{logoClass}}" href="/">Skyveri</a>
 
 {{#each pages}}
   {{> renderPage}}
@@ -38,7 +38,7 @@
     {{/if}}
 
     {{#if introText}}
-      <div class="introText" style="{{ introTextStyle }}">We build high quality apps and&nbsp;websites fast.<br />We are Skyveri.</div>
+      <div class="introText" style="{{ introTextStyle }}">We build apps and&nbsp;websites fast, without compromising on quality.<br />We are Skyveri.</div>
     {{/if}}
 
     {{#if contents}}
@@ -46,8 +46,21 @@
         <h1>{{{tagline}}}</h1>
       {{/if}}
 
+      {{#if contents.siteUrl}}
+        <div class="">Website: <a href="{{contents.siteUrl}}" target="_blank">{{contents.siteUrl}}</a></div>
+      {{/if}}
+
+      {{#if contents.role}}
+        <div class="">Role: {{{contents.role}}}</div>
+      {{/if}}
+
+      {{#if contents.agency}}
+        <div class="">Agency: {{{contents.agency}}}</div>
+      {{/if}}
+
       {{#if contents.intro}}
-        <div><strong>{{{contents.intro}}}</strong></div>
+        <div class="pageIntro">{{{contents.intro}}}</div>
+        <br /><br />
       {{/if}}
 
       {{#if contents.description}}
@@ -62,10 +75,31 @@
 </div>
 </template>
 
-<template name="pageProcess">
-<!-- Example of a custom template -->
+<template name="pageWhyUs">
 <div class="page {{machineName}} {{pageClass}}">
-  <h1>PROCESS:</h1>
+  <div class="pageContent">
+    {{#if contents}}
+      {{#if tagline}}
+        <h1>{{{tagline}}}</h1>
+      {{/if}}
+
+      {{#if contents.intro}}
+        <div><strong>{{{contents.intro}}}</strong></div>
+      {{/if}}
+
+      {{#if contents.description}}
+        <div class="pageDescription">{{{contents.description}}}</div>
+      {{/if}}
+
+      {{#if nextPage}}
+        <div style="text-align: right;"><em>Next: <a href="{{nextPage.url}}">{{nextPage.name}}</a></em></div>
+      {{/if}}
+    {{/if}}
+
+    {{#if social}}
+      <div class="social {{socialClass}}">{{{social}}}</div>
+    {{/if}}
+  </div>
 </div>
 </template>
 
