@@ -400,7 +400,7 @@ Template.secondaryNavItem.secondaryNavItemLinkImgStyle = function() {
   } else if (this.url === "/portfolio/jakavi") {
     style['width'] = '100%';
     style['max-width'] = '300px';
-  } else if (this.url === "/portfolio/geosoft") {
+  } else if (this.url === "/portfolio/more") {
     style['padding-top'] = '10px';
     style['width'] = '70%';
     style['max-width'] = '200px';
