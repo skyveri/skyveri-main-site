@@ -1,52 +1,6 @@
 Meteor.subscribe("pages");
 
-Session.set("windowWidth", window.innerWidth);
-Session.set("windowHeight", window.innerHeight);
 
-window.onresize = function (argument) {
-  Session.set("windowWidth", window.innerWidth);
-  Session.set("windowHeight", window.innerHeight);
-}
-
-//
-// Vars and Autoruns
-//
-
-var homepage = null;
-var activePage = null;
-var activePages = [];
-var WIDE_SCREEN_WIDTH = 1000;
-var INTRO_HEADER_BREAK_WIDTH = 830;
-
-// homepage
-
-Deps.autorun(function() {
-  homepage = Pages.findOne( { url: "/" } );
-});
-
-// activePage
-
-Deps.autorun(function() {
-  activePage = Pages.findOne( { _id: Session.get("activePageId") } );
-});
-
-// activePages
-
-Deps.autorun(function() {
-  var homepage = Pages.findOne( { url: "/" } );
-  var _page = Pages.findOne( { _id: Session.get("activePageId") } );
-
-  if (_page) {
-    var _activePages = [ _page ];
-
-    while (_page.parent) {
-      _page = Pages.findOne( { _id: _page.parent } );
-      _activePages.unshift(_page);
-    }
-
-    activePages = _activePages;
-  }
-});
 
 
 //
@@ -60,358 +14,562 @@ Router.configure({
 Router.map(function () {
   this.route('page', {
     path: ':url(*)',
-    template: 'page',
 
-    data: function () {
-      Session.set("activeUrl", "/" + this.params.url);
-
-      var id = getPageIdByUrl("/" + this.params.url);
-      Session.set("activePageId", id);
-
-      return {
-        pages: Pages.find({}).fetch(),
-        secondLevelPages: Pages.find({url: /^\/[a-zA-Z0-9._%+-]+$/}, {sort: {sortOrder:1}}).fetch(),
-        activePage: Pages.findOne({_id: Session.get("activePageId")})
-      }
+    action: function () {
+      setActivePagesWrapper("/" + this.params.url);
     }
   });
 });
 
-//
-// Templates
-//
 
-Template.MainLayout.logoClass = function () {
-  if (! homepage || isActivePage(homepage))
-    // The "! homepage" part ensures logo is shown before page initializes
-    return "";
-  else
-    return "subpage";
+function setActivePagesWrapper(url) {
+  Session.set("activeUrl", url);
+
+  var id = getPageIdByUrl(url);
+  Session.set("activePageId", id);
+
+  setActivePage();
+  setActivePages();
 }
 
-Template.MainLayout.secondaryNavList = function () {
-  var mainPages;
-  var secondaryNavList;
 
-  if (! homepage)
-    return [];
 
-  mainPages = Pages.find( { parent: homepage._id } ).fetch();
 
-  secondaryNavList = _.map(mainPages, function(mainPage) {
-    return Pages.find( { parent: mainPage._id }, { sort: { sortOrder: 1 } } ).fetch();
+// Deps.autorun(function() {
+//   alert(Session.get("windowWidth"));
+// });
+
+
+
+Deps.autorun(function() {
+  setActivePagesWrapper(window.location.pathname);
+});
+
+Session.set("windowWidth", window.innerWidth);
+Session.set("windowHeight", window.innerHeight);
+
+window.onresize = function (argument) {
+  Session.set("windowWidth", window.innerWidth);
+  Session.set("windowHeight", window.innerHeight);
+}
+
+
+//
+// Vars and Autoruns
+//
+
+var homepage = null;
+var activePage = null;
+var activePages = [];
+var DESKTOP_WIDTH = 1000;
+var MOBILE_WIDTH = 600;
+
+// homepage
+
+Deps.autorun(function() {
+  homepage = Pages.findOne( { url: "/" } );
+});
+
+// activePage
+
+function setActivePage() {
+  activePage = Pages.findOne( { _id: Session.get("activePageId") } );
+}
+
+Deps.autorun(setActivePage);
+
+// activePages
+
+function setActivePages() {
+  var homepage = Pages.findOne( { url: "/" } );
+  var _page = Pages.findOne( { _id: Session.get("activePageId") } );
+
+  if (_page) {
+    var _activePages = [ _page ];
+
+    while (_page.parent) {
+      _page = Pages.findOne( { _id: _page.parent } );
+      _activePages.unshift(_page);
+    }
+
+    activePages = _activePages;
+  }
+}
+
+Deps.autorun(setActivePages);
+
+
+
+
+
+
+// Rig some famo.us deps
+famous.polyfills;
+famous.core.famous;
+
+// Make sure dom got a body...
+Meteor.startup(function() {
+
+  View = famous.core.View;
+  Surface = famous.core.Surface;
+  Modifier = famous.core.Modifier;
+  Transform = famous.core.Transform;
+  TransitionableTransform = famous.transitions.TransitionableTransform;
+  Transitionable = famous.transitions.Transitionable;
+  SpringTransition = famous.transitions.SpringTransition;
+
+  Transitionable.registerMethod('spring', SpringTransition);
+
+});
+
+
+Meteor.startup(function() {
+  var mainContext = famous.core.Engine.createContext();
+  var mainView = new famous.core.View();
+  var surfaces = [];
+  var counter = 0;
+
+
+  //
+  // Pages
+  //
+
+  var pagesView = new famous.views.RenderController();
+  var allPagesCursor = Pages.find({});
+  var pageViews = {};
+
+  allPagesCursor.observe({
+    addedAt: function(doc, atIndex, before) {
+
+      var pageView = new famous.core.View();
+
+      var pageModifier = new Modifier();
+
+      var pageSurface = new famous.core.Surface({
+        size: [undefined, undefined],
+        content: "<div class='pageContent'>" + toHTMLWithData(Template.pageDefault, doc) + "</div>",
+        classes: ["page"]
+      });
+
+      pageView.add(pageModifier).add(pageSurface);
+
+      pageViews[doc._id] = pageView;
+    },
+    changedAt: function(newDoc, oldDoc, atIndex) {},
+    removedAt: function(oldDoc, atIndex) {},
+    movedTo: function(doc, fromIndex, toIndex, before) {}
   });
 
-  return secondaryNavList;
-}
+  Deps.autorun(function() {
+    pagesView.show(pageViews[Session.get("activePageId")]);
+  });
 
-Template.MainLayout.renderPage = function () {
-  if (this.template && (this.template in Template)) {
-    return Template[this.template];
-  } else {
-    return Template['pageDefault'];
-  }
-}
+  mainView.add(pagesView);
 
-Template.pageDefault.socialClass = function() {
-  if (isActivePage(homepage)) {
-    return "sociallyActive";
-  }
-}
 
-Template.pageDefault.pageClass = function() {
-  var cls = "";
+  //
+  // Nav Items
+  //
 
-  if (this.cls) {
-    cls += this.cls.join(" ");
-  }
+  var navItemsView = new famous.core.View();
 
-  if (isActivePage(this)) {
-    cls += " pageActive";
-  }
+  var mainPagesCursor = Pages.find({url: /^\/[a-zA-Z0-9._%+-]+$/}, {sort: {sortOrder:1}});
 
-  return cls;
-}
+  mainPagesCursor.observe({
+    addedAt: function(doc, atIndex, before) {
 
-Template.pageDefault.introHeaderClass = function() {
-  if (Session.get("windowWidth") < INTRO_HEADER_BREAK_WIDTH) {
-    return "introHeaderSmall";
-  }
-}
+      var navItemView = new famous.core.View();
 
-Template.pageDefault.introHeaderStyle = function() {
-  var style = {};
+      var hiddenTransform = Transform.multiply(Transform.translate(Session.get("windowWidth"), Session.get("windowHeight") / 2, 0), Transform.rotate(0, 1, 0));
+      var transitionableTransform = new TransitionableTransform(hiddenTransform);
 
-  if (Session.get("windowWidth") > WIDE_SCREEN_WIDTH) {
-    style['top'] = Session.get("windowHeight") / 2 - 220 + "px";
-  } else if (Session.get("windowWidth") > INTRO_HEADER_BREAK_WIDTH) {
-    style['top'] = 0 + "px";
-  } else {
-    style['top'] = 0 + "px";
-    style['left'] = 0 + "px";
-    style['width'] = Session.get("windowWidth") - 30 + "px";
-    style['line-height'] = 80 + "px";
-  }
+      var navItemModifier = new Modifier({
+        transform: transitionableTransform
+      });
 
-  style['font-size'] = getInterpolated(Session.get("windowWidth"), 1000, 75, 1400, 100) + "px";
+      var navItemClasses = ["navItem"];
+      if (doc.machineName) {
+        navItemClasses.push(doc.machineName);
+      }
 
-  return inlineStyle(style);
-}
+      var navItemSurface = new famous.core.Surface({
+        size: [false, false],
+        content: doc.name,
+        classes: navItemClasses
+      });
 
-Template.pageDefault.introTextStyle = function() {
-  var style = {};
+      Deps.autorun(function () {
+        var transform = navItemTransform(doc);
+        var navTransition = {method : 'spring', dampingRatio : 0.65, period : 600};
 
-  if (Session.get("windowWidth") > WIDE_SCREEN_WIDTH) {
-    style.top = Session.get("windowHeight") / 2 - 20 + "px";
-    style.left = 76 + "px";
-  } else if (Session.get("windowWidth") > INTRO_HEADER_BREAK_WIDTH) {
-    style.top = 200 + "px";
-    style.left = 76 + "px";
-  } else {
-    style.top = 250 + "px";
-    style.left = 5 + "px";
-    style.width = Session.get("windowWidth") - 30 + "px";
-  }
+        if (transitionableTransform.isActive()) {
+          transitionableTransform.halt();
+        }
 
-  return inlineStyle(style);
-}
+        transitionableTransform.set(transform, navTransition);
+      });
 
-Template.pageWhyUs.pageClass = function() {
-  var cls = "";
+      navItemSurface.on("click", function (e) {
+        var url = doc.url;
 
-  if (this.cls) {
-    cls += this.cls.join(" ");
-  }
+        if (url === '/why-choose-us')
+          url = '/why-choose-us/faster';
 
-  if (isActivePage(this)) {
-    cls += " pageActive";
-  }
+        setActivePagesWrapper(url);
+        Router.go(url);
+      });
 
-  return cls;
-}
+      navItemView.add(navItemModifier).add(navItemSurface);
 
-Template.pageWhyUs.nextPage = function() {
-  return getNextPage(this);
-}
+      // This should be moved out of here maybe?
+      navItemsView.add(navItemView);
+    },
+    changedAt: function(newDoc, oldDoc, atIndex) {},
+    removedAt: function(oldDoc, atIndex) {},
+    movedTo: function(doc, fromIndex, toIndex, before) {}
+  });
 
-Template.navItem.navItemClass = function() {
-  var navItemClass = "",
-      activePageIds = _.map(activePages, function(p){ return p._id; }),
-      page = this,
-      activeMainPage,
-      nextMainPage;
+  mainView.add(navItemsView);
 
-  // If `page._id` is in `activePageIds`
-  if ( _.find(activePageIds, function(id){ return EJSON.equals(page._id, id); }) )
-    navItemClass += "navItemHasActive";
 
-  if (isActivePage(this))
-    navItemClass += " navItemActive";
+  //
+  // Secondary Nav Items
+  //
 
-  try {
-    activeMainPage = activePages[1];
-  } catch(err) {
-    activeMainPage = null;
-  }
+  var secondaryNavItemsView = new famous.core.View();
 
-  nextMainPage = getNextPage(activeMainPage);
+  var secondaryPagesCursor = Pages.find({url: /^\/[a-zA-Z0-9._%+-]+\/[a-zA-Z0-9._%+-]+$/}, {sort: {sortOrder:1}});
 
-  if (nextMainPage && EJSON.equals(page._id, nextMainPage._id))
-    navItemClass += " navItemNext";
+  secondaryPagesCursor.observe({
+    addedAt: function(doc, atIndex, before) {
 
-  return navItemClass;
-}
+      var secondaryNavItemView = new famous.core.View();
 
-Template.navItem.navItemStyle = function() {
-  var style = {};
-  var offsetFromActive = getMainPageOffsetFromActive(this);
+      var transitionableTransform = new TransitionableTransform();
+
+      var secondaryNavTransition = {method : 'spring', dampingRatio : 0.65, period : 600};
+
+      var secondaryNavItemModifier = new Modifier({
+        transform: transitionableTransform
+      });
+
+      var secondaryNavItemClasses = ["secondaryNavItem"];
+      if (doc.machineName) {
+        secondaryNavItemClasses.push(doc.machineName);
+      }
+
+      var secondaryNavItemSurface = new famous.core.Surface({
+        size: [false, false],
+        content: doc.name,
+        classes: secondaryNavItemClasses
+      });
+
+      Deps.autorun(function () {
+        var activePage = Pages.findOne( { _id: Session.get("activePageId") } );
+
+        if (! activePage) return;
+
+        var transform;
+
+        if ( EJSON.equals(doc.parent, activePage._id) || EJSON.equals(doc.parent, activePage.parent) ) {
+          transform = secondaryNavItemShownTransform(doc);
+        } else {
+          transform = secondaryNavItemHiddenTransform(doc);
+        }
+
+        if (transitionableTransform.isActive()) {
+          transitionableTransform.halt();
+        }
+
+        transitionableTransform.set(transform, secondaryNavTransition);
+      });
+
+      secondaryNavItemSurface.on("click", function (e) {
+        var url = doc.url;
+
+        setActivePagesWrapper(url);
+        Router.go(url);
+      });
+
+      secondaryNavItemView.add(secondaryNavItemModifier).add(secondaryNavItemSurface);
+
+      // This should be moved out of here maybe?
+      secondaryNavItemsView.add(secondaryNavItemView);
+    },
+    changedAt: function(newDoc, oldDoc, atIndex) {},
+    removedAt: function(oldDoc, atIndex) {},
+    movedTo: function(doc, fromIndex, toIndex, before) {}
+  });
+
+
+  // var secondaryNavItems = [];
+
+  // Deps.autorun(function() {
+  //   secondaryNavItems = getSecondaryNavItems();
+  //   console.log(secondaryNavItems);
+  // });
+
+
+  mainView.add(secondaryNavItemsView);
+
+
+  //
+  // Homepage Intro
+  //
+
+  var homeIntroHeaderHtml = '<span class="introHeaderSlash">/</span> Fast is&nbsp;<span class="introHeaderFuture">future</span>';
+  var homeIntroTextHtml = "We build custom apps and&nbsp;websites fast.<br>With no compromise on quality.<br>We are Skyveri.";
+
+
+  var homeIntroView = new famous.core.View();
+  var homeIntroHeaderView = new famous.core.View();
+  var homeIntroTextView = new famous.core.View();
+
+
+  var homeIntroHeaderHiddenTransform = Transform.translate(-1000, 300, 0);
+  var homeIntroHeaderTransitionableTransform = new TransitionableTransform(homeIntroHeaderHiddenTransform);
+
+  var homeIntroHeaderSurface = new Surface({
+    size: [false, false],
+    content: homeIntroHeaderHtml,
+    classes: ["homeIntroHeader"]
+  });
+
+  Deps.autorun(function() {
+    var width = Session.get("windowWidth");
+    if (width < 530) width -= 40;
+    homeIntroHeaderSurface.setSize([width, false]);
+  });
+
+  var modifier = new Modifier({
+    transform: homeIntroHeaderTransitionableTransform
+  });
+
+  homeIntroHeaderView.add(modifier).add(homeIntroHeaderSurface);
+
+  Deps.autorun(function() {
+    var transform = homeIntroHeaderTransform();
+
+    if (homeIntroHeaderTransitionableTransform.isActive()) {
+      homeIntroHeaderTransitionableTransform.halt();
+    }
+
+    homeIntroHeaderTransitionableTransform.set(transform, {method : 'spring', dampingRatio : 0.65, period : 500});
+  });
+
+
+  var homeIntroTextHiddenTransform = Transform.translate(-1000, 400, 0);
+  var homeIntroTextTransitionableTransform = new TransitionableTransform(homeIntroTextHiddenTransform);
+
+  var homeIntroTextSurface = new Surface({
+    size: [false, false],
+    content: homeIntroTextHtml,
+    classes: ["homeIntroText"]
+  });
+
+  Deps.autorun(function() {
+    var width = Session.get("windowWidth");
+    if (width < 530) width -= 40;
+    homeIntroTextSurface.setSize([width, false]);
+  });
+
+  var modifier = new Modifier({
+    transform: homeIntroTextTransitionableTransform
+  });
+
+  homeIntroTextView.add(modifier).add(homeIntroTextSurface);
+
+  Deps.autorun(function() {
+    var transform = homeIntroTextTransform();
+
+    if (homeIntroTextTransitionableTransform.isActive()) {
+      homeIntroTextTransitionableTransform.halt();
+    }
+
+    homeIntroTextTransitionableTransform.set(transform, {method : 'spring', dampingRatio : 0.65, period : 500});
+  });
+
+
+  homeIntroView.add(homeIntroHeaderView);
+  homeIntroView.add(homeIntroTextView);
+
+  mainView.add(homeIntroView);
+
+
+  // Done
+
+  mainContext.add(mainView);
+});
+
+
+
+var navItemTransform = function(doc) {
+  var activeUrl = Session.get("activeUrl");
+  var windowWidth = Session.get("windowWidth");
+  var windowHeight = Session.get("windowHeight");
+
+  var offsetFromActive = getMainPageOffsetFromActive(doc);
+
+  var top, left;
 
   if (offsetFromActive === null) {
 
     // Collapsed (Homepage)
 
-    if (Session.get("windowWidth") > WIDE_SCREEN_WIDTH) {
-      style.top = Session.get("windowHeight") / 2 - 130 + getSiblingIndex(this) * 40 + "px";
-      style.left = Session.get("windowWidth") * 7 / 10 + "px";
-      style.width = Session.get("windowWidth") * 3 / 10 + "px";
-    } else if (Session.get("windowWidth") > INTRO_HEADER_BREAK_WIDTH) {
-      style.top = 350 + getSiblingIndex(this) * 40 + "px";
-      style.left = 73 + "px";
-      style.width = Session.get("windowWidth") + "px";
+    if (windowWidth > DESKTOP_WIDTH) {
+      top = windowHeight / 2 - 130 + getSiblingIndex(doc) * 40;
+      left = getInterpolated(windowWidth, 1000, 760, 1200, 1000);
+    } else if (windowWidth > MOBILE_WIDTH) {
+      top = 450 + getSiblingIndex(doc) * 40;
+      left = 73;
     } else {
-      style.top = 420 + getSiblingIndex(this) * 40 + "px";
-      style.left = 0 + "px";
-      style.width = Session.get("windowWidth") + "px";
+      top = 320 + getSiblingIndex(doc) * 40;
+      left = 25;
     }
 
     // Bold the first nav item
-    if (getSiblingIndex(this) === 0) {
-      style["font-weight"] = "400";
+    if (getSiblingIndex(doc) === 0) {
     }
 
   } else {
+
+    // Expanded (Non-homepage)
 
     if (offsetFromActive === 1) {
-      style.top = Session.get("windowHeight") - 47 + "px";
-      style['padding-bottom'] = 10 + "px";
-      style.left = 0 + "px";
-      style.width = Session.get("windowWidth") - 0 + "px";
-      style['font-weight'] = "400";
+      top = windowHeight - 47;
+      left = 0;
     } else {
-      style.top = Session.get("windowHeight") * offsetFromActive + "px";
-      style.left = 111 + "px";
-      style.width = Session.get("windowWidth") - 56 + "px";
+      top = windowHeight * offsetFromActive;
+      left = 111;
     }
 
   }
 
-  style['font-size'] = getInterpolated(Session.get("windowWidth"), 1000, 20, 1400, 22) + "px";
-
-  return inlineStyle(style);
+  return Transform.translate(left, top, 0);
 }
 
-Template.navItem.url = function() {
-  if (this.url === '/why-choose-us') {
-    return '/why-choose-us/faster';
-  } else {
-    return this.url;
-  }
+var secondaryNavItemHiddenTransform = function(doc) {
+  var activeUrl = Session.get("activeUrl");
+  var windowWidth = Session.get("windowWidth");
+  var windowHeight = Session.get("windowHeight");
+
+  var top, left;
+
+  top = -30;
+  left = 0;
+
+  return Transform.translate(left, top, 0);
 }
 
-Template.secondaryNav.secondaryPages = function() {
-  return this;
-}
+var secondaryNavItemShownTransform = function(doc) {
+  var activeUrl = Session.get("activeUrl");
+  var windowWidth = Session.get("windowWidth");
+  var windowHeight = Session.get("windowHeight");
 
-Template.secondaryNav.secondaryNavClass = function() {
-  if (this.length === 0)
-    return "";
-
-  var parentId = this[0].parent;
-  var activePageIds = _.map(activePages, function(p){ return p._id; });
-
-  // If parentId is in activePageIds
-  if ( _.find(activePageIds, function(id){ return EJSON.equals(parentId, id); }) )
-    return "secondaryNavActive";
-}
-
-Template.secondaryNav.secondaryNavStyle = function() {
-  if (this.length === 0)
-    return "";
-
-  var style = {};
-
-  style['font-size'] = getInterpolated(Session.get("windowWidth"), 400, 16, 1000, 19) + "px";
-
-  return inlineStyle(style);
-}
-
-Template.secondaryNavItem.navItemUrl = function() {
-  return this.url;
-}
-
-Template.secondaryNavItem.secondaryNavItemClass = function() {
-  if (isActivePage(this)) {
-    return "secondaryNavItemActive";
-  }
-}
-
-Template.secondaryNavItem.secondaryNavItemStyle = function() {
-  var style = {},
-      activeUrl = Session.get("activeUrl");
+  var top, left;
 
   if (activeUrl === "/portfolio") {
-    style.top = Session.get("windowHeight") / 2 - 150 + "px";
-    style.left = Session.get("windowWidth") * getSiblingIndex(this) / numberOfSiblings(this) + "px";
-    style.width = Session.get("windowWidth") / numberOfSiblings(this) - 10 + "px";
+    top = windowHeight / 2 - 150;
+    left = windowWidth * getSiblingIndex(doc) / numberOfSiblings(doc);
+    // width = windowWidth / numberOfSiblings(doc) - 10;
   // } else if (activeUrl.startsWith("/portfolio")) {
-  //   style.top = -300 + "px";
-  //   style.left = Session.get("windowWidth") * getSiblingIndex(this) / numberOfSiblings(this) + "px";
-  //   style.width = Session.get("windowWidth") / numberOfSiblings(this) - 10 + "px";
+  //   style.top = -300;
+  //   style.left = windowWidth * getSiblingIndex(doc) / numberOfSiblings(doc);
+  //   style.width = windowWidth / numberOfSiblings(doc) - 10;
   } else {
-    style.top = 0;
-    style.left = Session.get("windowWidth") * getSiblingIndex(this) / numberOfSiblings(this) + "px";
-    style.width = Session.get("windowWidth") / numberOfSiblings(this) - 3 + "px";
+    top = 40;
+    left = windowWidth * getSiblingIndex(doc) / numberOfSiblings(doc);
+    // width = windowWidth / numberOfSiblings(doc) - 3;
   }
 
-  return inlineStyle(style);
+  return Transform.translate(left, top, 0);
 }
 
-Template.secondaryNavItem.secondaryNavItemLinkWrapperStyle = function() {
-  var style = {},
-      activeUrl = Session.get("activeUrl");
+var homeIntroHeaderTransform = function() {
+  var windowWidth = Session.get("windowWidth");
+  var windowHeight = Session.get("windowHeight");
 
-  return inlineStyle(style);
-}
+  if (Session.get("activeUrl") != '/') {
+    return Transform.translate(-1000, 300, 0);
+  }
 
-Template.secondaryNavItem.secondaryNavItemLinkStyle = function() {
-  var style = {},
-      activeUrl = Session.get("activeUrl");
+  var top, left;
+  var scale = 1;
 
-  if (activeUrl === "/portfolio") {
-    style['height'] = '150px';
-    style['border-bottom-color'] = "transparent";
+  if (windowWidth > DESKTOP_WIDTH) {
+    top = windowHeight / 2 - 160;
+    left = 20;
+  } else if (windowWidth > MOBILE_WIDTH) {
+    top = 100;
+    left = 20;
   } else {
-    style['height'] = '37px';
+    top = 20;
+    left = 5;
   }
 
-  return inlineStyle(style);
-}
-
-Template.secondaryNavItem.secondaryNavItemLinkNameStyle = function() {
-  var style = {},
-      activeUrl = Session.get("activeUrl");
-
-  if (activeUrl === "/portfolio") {
-    style['margin-top'] = '-30px';
-    style['opacity'] = '0';
+  if (windowWidth > MOBILE_WIDTH) {
+    scale = getInterpolated(windowWidth, 500, 0.5, 1200, 1);
   } else {
-    style['margin-top'] = '0';
-    style['opacity'] = '1';
+    scale = getInterpolated(windowWidth, 0, 0, 500, 0.55, false, false);
   }
 
-  if (activeUrl === "/portfolio") {
-    style['background'] = "rgba(255,255,255,1)";
-  } else if (activeUrl.startsWith("/portfolio") && activeUrl !== this.url) {
-    // style['background'] = "rgba(255,255,255,0.95)";
-  }
-
-  return inlineStyle(style);
+  return Transform.multiply(Transform.translate(left, top, 0), Transform.scale(scale, scale, 1));
 }
 
-Template.secondaryNavItem.secondaryNavItemLinkImgStyle = function() {
-  var style = {},
-      activeUrl = Session.get("activeUrl");
+var homeIntroTextTransform = function() {
+  var windowWidth = Session.get("windowWidth");
+  var windowHeight = Session.get("windowHeight");
 
-  if (activeUrl === "/portfolio") {
-    style['margin-top'] = '30px';
-    // style['opacity'] = '1';
+  if (Session.get("activeUrl") != '/') {
+    return Transform.translate(-1000, 400, 0);
+  }
+
+  var top, left;
+  var scale = 1;
+
+  if (windowWidth > DESKTOP_WIDTH) {
+    top = windowHeight / 2 - 20;
+    left = getInterpolated(windowWidth, 1050, 80, 1200, 90, false, true);
+  } else if (windowWidth > MOBILE_WIDTH) {
+    top = 240;
+    left = getInterpolated(windowWidth, 1050, 80, 1200, 90, false, true);
   } else {
-    style['margin-top'] = '0';
-    // style['opacity'] = '0';
+    top = 100;
+    left = 25;
   }
 
-  if (this.url === "/portfolio/tomorrow-world") {
-    style['padding-top'] = '10px';
-    style['width'] = '60%';
-    style['max-width'] = '200px';
-  } else if (this.url === "/portfolio/centric-health") {
-    style['width'] = '95%';
-    style['max-width'] = '300px';
-  } else if (this.url === "/portfolio/jakavi") {
-    style['width'] = '100%';
-    style['max-width'] = '300px';
-  } else if (this.url === "/portfolio/more") {
-    style['padding-top'] = '10px';
-    style['width'] = '70%';
-    style['max-width'] = '200px';
-  }
-
-  return inlineStyle(style);
+  return Transform.multiply(Transform.translate(left, top, 0), Transform.scale(scale, scale, 1));
 }
+
+
+
+
 
 //
 // Lib
 //
+
+// From here: https://github.com/meteor/meteor/issues/2007
+var toHTMLWithData = function (kind, data) {
+  return UI.toHTML(kind.extend({data: function () { return data; }}));
+};
+
+// function getSecondaryNavItems() {
+//   var homepage = Pages.findOne( { url: "/" } );
+//   var mainPages;
+//   var secondaryNavList;
+
+//   if (! homepage)
+//     return [];
+
+//   mainPages = Pages.find( { parent: homepage._id } ).fetch();
+
+//   secondaryNavList = _.map(mainPages, function(mainPage) {
+//     return Pages.find( { parent: mainPage._id }, { sort: { sortOrder: 1 } } ).fetch();
+//   });
+
+//   return secondaryNavList;
+// }
 
 function getSiblingIndex(page) {
   var index;
@@ -431,6 +589,8 @@ function getMainPageOffsetFromActive(page) {
       prevMainPages = [],
       nextMainPages = [],
       activeMainPage;
+
+  // console.log("getMainPageOffsetFromActive -> activePages ", activePages);
 
   if (activePages.length <= 1)
     return offsetFromActive;
@@ -480,7 +640,7 @@ function hasChildren(page) {
 }
 
 function getPageIdByUrl(url) {
-  var activePage = Pages.findOne({url: url}); 
+  var activePage = Pages.findOne({url: url});
   if (activePage)
     return activePage._id;
   else
@@ -492,32 +652,21 @@ function getNextPage(page) {
     return Pages.findOne( { parent: page.parent, sortOrder: { $gt: page.sortOrder } } , { sort: { sortOrder:  1 } } );
 }
 
-function getInterpolated(x, x1, y1, x2, y2, truncateMin, truncateMax) {
+
+function getInterpolated(x, x1, y1, x2, y2, truncate1, truncate2) {
+  if (truncate1 === undefined) truncate1 = true;
+  if (truncate2 === undefined) truncate2 = true;
+
   var y = (y2 - y1) / (x2 - x1) * (x - x1) + y1;
 
-  if (truncateMin === undefined) truncateMin = true;
-  if (truncateMax === undefined) truncateMax = true;
-
-  if (truncateMin && y < y1) {
+  if ( truncate1 && ( (y1 < y2 && y < y1) || (y1 > y2 && y > y1) ) )
     return y1;
-  } else if (truncateMax && y > y2) {
+  else if ( truncate2 && ( (y1 < y2 && y > y2) || (y1 > y2 && y < y2) ) )
     return y2;
-  } else {
-    return y;
-  }
+
+  return y;
 }
 
-inlineStyle = function(styleObj) {
-  var prefixThese = ["transform"];
-
-  return _.reduce(_.pairs(styleObj), function(m, p) {
-    if (prefixThese.indexOf(p[0]) !== -1) {
-      m += "-webkit-" + p[0] + ":" + p[1] + ";";
-    }
-
-    return m + p[0] + ":" + p[1] + ";";
-  }, "");
-}
 
 if (typeof String.prototype.startsWith != 'function') {
   String.prototype.startsWith = function (str){
@@ -553,14 +702,3 @@ _.mixin({
     }
 
 });
-
-// Logging
-
-var isLogging = true;
-
-log = function (msg) {
-  if (!isLogging)
-    return;
-
-  console.log(msg);
-};

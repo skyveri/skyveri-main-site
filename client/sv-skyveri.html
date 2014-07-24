@@ -1,137 +1,24 @@
 <head>
-  <meta charset='utf-8'>
-  <title>Skyveri - Mobile &amp; Web Development Company in Toronto</title>
-  <link href='//fonts.googleapis.com/css?family=Roboto:400,500,300,100,700' rel='stylesheet' type='text/css'>
-  <meta name="description" content="Skyveri is a web development company in Toronto. We specialize in high quality websites and web apps.">
-  <meta name="viewport" content="width=1100, height=2000">
-  <link rel="shortcut icon" href="//skyveri-temp.s3.amazonaws.com/Skyveri.com/favicon.ico" />
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, maximum-scale=1, user-scalable=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+    <title>Skyveri - Mobile &amp; Web Development Company in Toronto</title>
+    <link href='//fonts.googleapis.com/css?family=Roboto:400,500,300,100,700' rel='stylesheet' type='text/css'>
+    <meta name="description" content="Skyveri is a web development company in Toronto. We specialize in high quality websites and web apps.">
+    <link rel="shortcut icon" href="//skyveri-temp.s3.amazonaws.com/Skyveri.com/favicon.ico" />
 </head>
 
 
 <template name="MainLayout">
-<a class="logo {{logoClass}}" href="/">Skyveri</a>
-
-{{#each pages}}
-  {{> renderPage}}
-{{/each}}
-
-{{#each secondLevelPages}}
-  {{> navItem}}
-{{/each}}
-
-{{#each secondaryNavList}}
-  {{> secondaryNav}}
-{{/each}}
-</template>
-
-<template name="navItem">
-<div class="navItem {{navItemClass}}" style="{{navItemStyle}}">
-  <div class="navItemLinkWrapper"><a class="navItemLink" href="{{url}}">{{name}}</a></div>
-  <div class="navItemBg"></div>
-</div>
 </template>
 
 <template name="pageDefault">
-<div class="page {{machineName}} {{pageClass}}">
-  <div class="pageContent">
-    {{#if introHeader}}
-      <h1 class="introHeader {{ introHeaderClass }}" style="{{ introHeaderStyle }}"><span class="slash">/</span> Fast is&nbsp;<span class="swapperFuture">future</span></h1>
-    {{/if}}
-
-    {{#if introText}}
-      <div class="introText" style="{{ introTextStyle }}">We build custom apps and&nbsp;websites fast.<br />With no compromise on quality.<br />We are Skyveri.</div>
-      <!-- <div class="introText" style="{{ introTextStyle }}">We build apps and&nbsp;websites fast, without compromising on quality.<br />We are Skyveri.</div> -->
-    {{/if}}
-
-    {{#if contents}}
-      {{#if tagline}}
-        <h1>{{{tagline}}}</h1>
-      {{/if}}
-
-      {{#if contents.siteUrl}}
-        <div class="">Website: <a href="{{contents.siteUrl}}" target="_blank">{{contents.siteUrl}}</a></div>
-      {{/if}}
-
-      {{#if contents.role}}
-        <div class="">Role: {{{contents.role}}}</div>
-      {{/if}}
-
-      {{#if contents.agency}}
-        <div class="">Agency: {{{contents.agency}}}</div>
-      {{/if}}
-
-      {{#if contents.intro}}
-        <div class="pageIntro">{{{contents.intro}}}</div>
-        <br /><br />
-      {{/if}}
-
-      {{#if contents.description}}
-        <div class="pageDescription">{{{contents.description}}}</div>
-      {{/if}}
-    {{/if}}
-
-    {{#if social}}
-      <div class="social {{socialClass}}">{{{social}}}</div>
-    {{/if}}
-  </div>
-</div>
-</template>
-
-<template name="pageWhyUs">
-<div class="page {{machineName}} {{pageClass}}">
-  <div class="pageContent">
-    {{#if contents}}
-      {{#if tagline}}
-        <h1>{{{tagline}}}</h1>
-      {{/if}}
-
-      {{#if contents.intro}}
-        <div><strong>{{{contents.intro}}}</strong></div>
-      {{/if}}
-
-      {{#if contents.description}}
-        <div class="pageDescription">{{{contents.description}}}</div>
-      {{/if}}
-
-      {{#if nextPage}}
-        <div style="text-align: right;"><em>Next: <a href="{{nextPage.url}}">{{nextPage.name}}</a></em></div>
-      {{/if}}
-    {{/if}}
-
-    {{#if social}}
-      <div class="social {{socialClass}}">{{{social}}}</div>
-    {{/if}}
-  </div>
-</div>
-</template>
-
-<template name="secondaryNav">
-<div class="secondaryNav {{secondaryNavClass}}" style="{{secondaryNavStyle}}">
-  {{#each secondaryPages}}
-    {{> secondaryNavItem}}
-  {{/each}}
-</div>
-</template>
-
-<template name="secondaryNavItem">
-<div class="secondaryNavItem {{secondaryNavItemClass}}" style="{{secondaryNavItemStyle}}">
-  <div class="secondaryNavItemLinkWrapper" style="{{secondaryNavItemLinkWrapperStyle}}">
-    <a class="secondaryNavItemLink" style="{{secondaryNavItemLinkStyle}}" href="{{navItemUrl}}">
-      {{#if name}}
-        <div class="secondaryNavItemLinkName" style="{{secondaryNavItemLinkNameStyle}}">{{name}}</div>
-      {{/if}}
-      {{#if linkImg}}
-        <div class="secondaryNavItemLinkImg" style="{{secondaryNavItemLinkImgStyle}}">
-          <img src='{{linkImg}}' />
-        </div>
-      {{else}}
-        {{#if name is "More"}}
-          <div class="secondaryNavItemLinkImg" style="{{secondaryNavItemLinkImgStyle}}">
-            <div style="padding: 14px 0; text-align: center; font-size: 20px; border: 1px solid #888;">More</div>
-          </div>
-        {{/if}}
-      {{/if}}
-    </a>
-  </div>
-</div>
+{{#if contents}}
+  {{#if contents.description}}
+    <div class="pageDescription">{{{contents.description}}}</div>
+  {{/if}}
+{{/if}}
 </template>
