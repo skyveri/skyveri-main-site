@@ -1,9 +1,19 @@
 body {
   font-family: 'Roboto', sans-serif;
-  font-weight: 400;
+  font-weight: 300;
   font-size: 22px;
   color: #333;
   cursor: default;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid #ccc;
+}
+
+a img {
+  border: none;
 }
 
 h1 {
@@ -11,9 +21,30 @@ h1 {
   font-weight: 400;
 }
 
+@media screen and (max-device-width: 640px) {
+  h1 {
+    font-size: 30px;
+    font-weight: 400;
+  }
+}
+
 h2 {
   font-size: 22px;
   font-weight: 500;
+}
+
+/*
+ * Logo
+ */
+
+.logo {
+  z-index: 12;
+  cursor: pointer;
+  text-indent: 10px;
+}
+
+.logo:hover {
+  color: #F7070B;
 }
 
 /*
@@ -23,11 +54,19 @@ h2 {
 .navItem {
   font-weight: 300;
   cursor: pointer;
-  z-index: 2;
+  z-index: 11;
 }
 
-.navItem.whyChooseUs {
+.navItem:active {
+  color: #F7070B;
+}
+
+.navItem.why-choose-us {
   font-weight: 400;
+}
+
+.navItemBg {
+  z-index: 10;
 }
 
 /*
@@ -36,7 +75,46 @@ h2 {
 
 .secondaryNavItem {
   cursor: pointer;
+  z-index: 3;
+  padding: 0 0 0 5px;
+}
+
+.secondaryNavItem:active {
+  color: #F7070B;
+}
+
+.secondaryNavItemBg {
+  cursor: pointer;
   z-index: 2;
+}
+
+.secondaryNavItemImage {
+  cursor: pointer;
+  z-index: 4;
+  text-align: center;
+}
+
+.secondaryNavItemImage .linkContent {
+  display: block;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 200px;
+}
+
+.secondaryNavItemImage.pagePortfolioCentricHealth .linkContent {
+  max-width: 300px;
+}
+
+.secondaryNavItemImage.pagePortfolioTomorrowWorld .linkContent {
+  padding-top: 10px;
+}
+
+.secondaryNavItemImage.pagePortfolioJakavi .linkContent {
+  max-width: 300px;
+}
+
+.secondaryNavItemImage.pagePortfolioMore .linkContent {
+  margin-top: 14px;
 }
 
 /*
@@ -65,13 +143,22 @@ h2 {
 
 .page {
   z-index: 1;
-  overflow: auto;
 }
 
 .pageContent {
   margin: 0 auto;
-  padding: 70px 0 150px 0;
+  padding: 120px 10px 150px 10px;
   max-width: 1100px;
+}
+
+.page.why-choose-us .pageContent {
+  max-width: 500px;
+}
+
+@media screen and (max-device-width: 640px) {
+  .pageContent {
+    padding: 80px 10px 100px 10px;
+  }
 }
 
 .pageIntro {

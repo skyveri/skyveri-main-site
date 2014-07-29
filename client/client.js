@@ -2,6 +2,14 @@ Meteor.subscribe("pages");
 
 
 
+//
+// Vars
+//
+
+var DESKTOP_WIDTH = 1000;
+var MOBILE_WIDTH = 600;
+
+
 
 //
 // Router
@@ -27,17 +35,7 @@ function setActivePagesWrapper(url) {
 
   var id = getPageIdByUrl(url);
   Session.set("activePageId", id);
-
-  setActivePage();
-  setActivePages();
 }
-
-
-
-
-// Deps.autorun(function() {
-//   alert(Session.get("windowWidth"));
-// });
 
 
 
@@ -53,51 +51,15 @@ window.onresize = function (argument) {
   Session.set("windowHeight", window.innerHeight);
 }
 
+setTimeout(function() {
+  Session.set("windowWidth", window.innerWidth);
+  Session.set("windowHeight", window.innerHeight);
+}, 50);
 
-//
-// Vars and Autoruns
-//
-
-var homepage = null;
-var activePage = null;
-var activePages = [];
-var DESKTOP_WIDTH = 1000;
-var MOBILE_WIDTH = 600;
-
-// homepage
-
-Deps.autorun(function() {
-  homepage = Pages.findOne( { url: "/" } );
-});
-
-// activePage
-
-function setActivePage() {
-  activePage = Pages.findOne( { _id: Session.get("activePageId") } );
-}
-
-Deps.autorun(setActivePage);
-
-// activePages
-
-function setActivePages() {
-  var homepage = Pages.findOne( { url: "/" } );
-  var _page = Pages.findOne( { _id: Session.get("activePageId") } );
-
-  if (_page) {
-    var _activePages = [ _page ];
-
-    while (_page.parent) {
-      _page = Pages.findOne( { _id: _page.parent } );
-      _activePages.unshift(_page);
-    }
-
-    activePages = _activePages;
-  }
-}
-
-Deps.autorun(setActivePages);
-
+setTimeout(function() {
+  Session.set("windowWidth", window.innerWidth);
+  Session.set("windowHeight", window.innerHeight);
+}, 500);
 
 
 
@@ -141,17 +103,34 @@ Meteor.startup(function() {
   allPagesCursor.observe({
     addedAt: function(doc, atIndex, before) {
 
-      var pageView = new famous.core.View();
-
-      var pageModifier = new Modifier();
+      var pageView = new famous.views.Scrollview();
 
       var pageSurface = new famous.core.Surface({
-        size: [undefined, undefined],
-        content: "<div class='pageContent'>" + toHTMLWithData(Template.pageDefault, doc) + "</div>",
-        classes: ["page"]
+        size: [undefined, 1500],
+        classes: ["page"].concat(doc.cls || [])
       });
 
-      pageView.add(pageModifier).add(pageSurface);
+      setInterval(function() {
+        pageSurface.setSize([undefined, getActivePageHeight()]);
+      }, 500)
+
+      Deps.autorun(function() {
+        var pageData = doc;
+        pageData.nextPage = getNextPage(doc);
+
+        pageSurface.setContent("<div class='pageContent'>" + toHTMLWithData(Template[doc.template || 'pageDefault'], pageData) + "</div>");
+      });
+
+      Deps.autorun(function() {
+        if ( EJSON.equals(doc._id, Session.get("activePageId")) ) {
+          pageSurface.addClass('page-active');
+        } else {
+          pageSurface.removeClass('page-active');
+        }
+      });
+
+      pageSurface.pipe(pageView);
+      pageView.sequenceFrom([pageSurface]);
 
       pageViews[doc._id] = pageView;
     },
@@ -165,6 +144,46 @@ Meteor.startup(function() {
   });
 
   mainView.add(pagesView);
+
+
+  //
+  // Logo
+  //
+
+  var logoSurface = new famous.core.Surface({
+    size: [96, 32],
+    content: "Skyveri",
+    classes: ["logo"],
+    properties: {
+      backgroundColor: "#fff"
+    }
+  });
+
+  var logoTransform = new TransitionableTransform(getLogoTransform());
+
+  var logoModifier = new Modifier({
+    transform: logoTransform
+  });
+
+  Deps.autorun(function () {
+    var transform = getLogoTransform();
+    var logoTransition = {method : 'spring', dampingRatio : 0.7, period : 600};
+
+    logoTransform.halt();
+    logoTransform.set(transform, logoTransition);
+  });
+
+  var logoClickHandler = function (e) {
+    var url = "/";
+
+    setActivePagesWrapper(url);
+    Router.go(url);
+  }
+
+  logoSurface.on("touchend", logoClickHandler);
+  logoSurface.on("click", logoClickHandler);
+
+  mainView.add(logoModifier).add(logoSurface);
 
 
   //
@@ -187,29 +206,21 @@ Meteor.startup(function() {
         transform: transitionableTransform
       });
 
-      var navItemClasses = ["navItem"];
-      if (doc.machineName) {
-        navItemClasses.push(doc.machineName);
-      }
-
       var navItemSurface = new famous.core.Surface({
         size: [false, false],
         content: doc.name,
-        classes: navItemClasses
+        classes: ["navItem"].concat(doc.cls || [])
       });
 
       Deps.autorun(function () {
+        var navTransition = {method : 'spring', dampingRatio : 0.7, period : 600};
         var transform = navItemTransform(doc);
-        var navTransition = {method : 'spring', dampingRatio : 0.65, period : 600};
 
-        if (transitionableTransform.isActive()) {
-          transitionableTransform.halt();
-        }
-
+        transitionableTransform.halt();
         transitionableTransform.set(transform, navTransition);
       });
 
-      navItemSurface.on("click", function (e) {
+      var navItemClickHandler = function (e) {
         var url = doc.url;
 
         if (url === '/why-choose-us')
@@ -217,7 +228,10 @@ Meteor.startup(function() {
 
         setActivePagesWrapper(url);
         Router.go(url);
-      });
+      }
+
+      navItemSurface.on("touchend", navItemClickHandler);
+      navItemSurface.on("click", navItemClickHandler);
 
       navItemView.add(navItemModifier).add(navItemSurface);
 
@@ -228,6 +242,71 @@ Meteor.startup(function() {
     removedAt: function(oldDoc, atIndex) {},
     movedTo: function(doc, fromIndex, toIndex, before) {}
   });
+
+  // Nav Item Bg
+
+  var navItemBg1Transform = new TransitionableTransform(Transform.translate(96, -100, 0));
+
+  var navItemBg1Modifier = new Modifier({
+    transform: navItemBg1Transform
+  });
+
+  var navItemBg1Surface = new famous.core.Surface({
+    size: [undefined, 32],
+    content: "",
+    classes: ["navItemBg"],
+    properties: {
+      backgroundColor: "#ccc"
+    }
+  });
+
+  Deps.autorun(function () {
+    var navTransition = {method : 'spring', dampingRatio : 0.7, period : 600};
+
+    if (Session.get("activeUrl") === '/') {
+      var bgTransform = Transform.translate(96, -100, 0);
+    } else {
+      var bgTransform = Transform.translate(96, 0, 0);
+    }
+
+    navItemBg1Transform.halt();
+    navItemBg1Transform.set(bgTransform, navTransition);
+  });
+
+  navItemsView.add(navItemBg1Modifier).add(navItemBg1Surface);
+
+  // Nav Item Bg 2
+
+  var navItemBg2Transform = new TransitionableTransform(Transform.translate(0, Session.get("windowHeight") + 100, 0));
+
+  var navItemBg2Modifier = new Modifier({
+    transform: navItemBg2Transform
+  });
+
+  var navItemBg2Surface = new famous.core.Surface({
+    size: [undefined, 45],
+    content: "",
+    classes: ["navItemBg"],
+    properties: {
+      backgroundColor: "#ccc"
+    }
+  });
+
+  Deps.autorun(function () {
+    var navTransition = {method : 'spring', dampingRatio : 0.7, period : 600};
+
+    if (Session.get("activeUrl") === '/' || Session.get("activeUrl") === '/contact') {
+      var bgTransform = Transform.translate(0, Session.get("windowHeight") + 100, 0);
+    } else {
+      var bgTransform = Transform.translate(0, Session.get("windowHeight") - 45, 0);
+    }
+
+    navItemBg2Transform.halt();
+    navItemBg2Transform.set(bgTransform, navTransition);
+  });
+
+  navItemsView.add(navItemBg2Modifier).add(navItemBg2Surface);
+
 
   mainView.add(navItemsView);
 
@@ -245,9 +324,9 @@ Meteor.startup(function() {
 
       var secondaryNavItemView = new famous.core.View();
 
-      var transitionableTransform = new TransitionableTransform();
+      var transitionableTransform = new TransitionableTransform(secondaryNavItemHiddenTransform(doc));
 
-      var secondaryNavTransition = {method : 'spring', dampingRatio : 0.65, period : 600};
+      var secondaryNavTransition = {method : 'spring', dampingRatio : 0.7, period : 600};
 
       var secondaryNavItemModifier = new Modifier({
         transform: transitionableTransform
@@ -262,6 +341,17 @@ Meteor.startup(function() {
         size: [false, false],
         content: doc.name,
         classes: secondaryNavItemClasses
+      });
+
+      Deps.autorun(function() {
+        var windowWidth = Session.get("windowWidth");
+        var itemWidth = windowWidth / numberOfSiblings(doc);
+
+        secondaryNavItemSurface.setSize([itemWidth - 10, 30]);
+
+        if (windowWidth < MOBILE_WIDTH) {
+          secondaryNavItemSurface.setProperties({fontSize: "15px"});
+        }
       });
 
       Deps.autorun(function () {
@@ -284,30 +374,142 @@ Meteor.startup(function() {
         transitionableTransform.set(transform, secondaryNavTransition);
       });
 
-      secondaryNavItemSurface.on("click", function (e) {
+      var secondaryNavItemBgClasses = ["secondaryNavItemBg"];
+      if (doc.machineName) {
+        secondaryNavItemBgClasses.push(doc.machineName);
+      }
+
+      var secondaryNavItemBg = new famous.core.Surface({
+        size: [false, false],
+        content: "",
+        classes: secondaryNavItemBgClasses,
+        properties: {
+          backgroundColor: "#fff",
+          opacity: 0.9
+        }
+      });
+
+      Deps.autorun(function () {
+        if (doc.url == Session.get("activeUrl")) {
+          secondaryNavItemBg.setProperties({backgroundColor: "#ddd"});
+        } else {
+          secondaryNavItemBg.setProperties({backgroundColor: "#fff"});
+        }
+
+        var height;
+        if (Session.get("windowWidth") > MOBILE_WIDTH) {
+          height = 32;
+        } else {
+          height = 44;
+        }
+
+        secondaryNavItemBg.setSize([Session.get("windowWidth") / numberOfSiblings(doc), height]);
+      });
+
+      var secondaryNavItemImageClasses = ["secondaryNavItemImage"];
+      if (doc.machineName) {
+        secondaryNavItemImageClasses.push(doc.machineName);
+      }
+
+      if (doc.linkContent || doc.linkImg) {
+        var secondaryNavItemImage = new famous.core.Surface({
+          size: [false, false],
+          content: doc.linkContent || "<img class='linkContent' src='" + doc.linkImg + "'/>",
+          classes: secondaryNavItemImageClasses
+        });
+
+        Deps.autorun(function () {
+          var windowWidth = Session.get("windowWidth");
+          var itemWidth;
+
+          if (Session.get("activeUrl") === '/portfolio' && windowWidth < MOBILE_WIDTH) {
+            itemWidth = windowWidth - 60;
+          } else {
+            itemWidth = Session.get("windowWidth") / numberOfSiblings(doc);
+          }
+
+          secondaryNavItemImage.setSize([itemWidth, false]);
+        });
+      } else {
+        var secondaryNavItemImage = new famous.core.Surface({
+          size: [0, 0]
+        });
+      }
+
+      var secondaryNavItemClick = function(e) {
         var url = doc.url;
 
         setActivePagesWrapper(url);
         Router.go(url);
+      }
+
+      secondaryNavItemSurface.on("touchend", secondaryNavItemClick);
+      secondaryNavItemBg.on("touchend", secondaryNavItemClick);
+      secondaryNavItemImage.on("touchend", secondaryNavItemClick);
+
+      secondaryNavItemSurface.on("click", secondaryNavItemClick);
+      secondaryNavItemBg.on("click", secondaryNavItemClick);
+      secondaryNavItemImage.on("click", secondaryNavItemClick);
+
+      var textTransitionableTransform = new TransitionableTransform();
+      var bgTransitionableTransform = new TransitionableTransform();
+      var imageTransitionableTransform = new TransitionableTransform();
+
+      var secondaryNavItemTextModifier = new Modifier({
+        transform: textTransitionableTransform
       });
 
-      secondaryNavItemView.add(secondaryNavItemModifier).add(secondaryNavItemSurface);
+      var secondaryNavItemBgModifier = new Modifier({
+        transform: bgTransitionableTransform
+      });
+
+      var secondaryNavItemImageModifier = new Modifier({
+        transform: imageTransitionableTransform
+      });
+
+      Deps.autorun(function () {
+        var activePage = Pages.findOne( { _id: Session.get("activePageId") } );
+
+        if (! activePage) return;
+
+        var textTransform;
+        var bgTransform;
+        var imageTransform;
+
+        if ( EJSON.equals(doc.parent, activePage._id) ) {
+          textTransform = secondaryNavItemTextHiddenTransform(doc);
+          bgTransform = secondaryNavItemBgHiddenTransform(doc);
+          imageTransform = secondaryNavItemImageShownTransform(doc);
+        } else if ( EJSON.equals(doc.parent, activePage.parent) ) {
+          textTransform = secondaryNavItemTextShownTransform(doc);
+          bgTransform = secondaryNavItemBgShownTransform(doc);
+          imageTransform = secondaryNavItemImageHiddenTransform(doc);
+        } else {
+          textTransform = secondaryNavItemHiddenTransform(doc);
+          bgTransform = secondaryNavItemBgHiddenTransform(doc);
+          imageTransform = secondaryNavItemHiddenTransform(doc);
+        }
+
+        textTransitionableTransform.halt();
+        bgTransitionableTransform.halt();
+        imageTransitionableTransform.halt();
+
+        textTransitionableTransform.set(textTransform, secondaryNavTransition);
+        bgTransitionableTransform.set(bgTransform, secondaryNavTransition);
+        imageTransitionableTransform.set(imageTransform, secondaryNavTransition);
+      });
+
+      secondaryNavItemView.add(secondaryNavItemTextModifier).add(secondaryNavItemSurface);
+      secondaryNavItemView.add(secondaryNavItemBgModifier).add(secondaryNavItemBg);
+      secondaryNavItemView.add(secondaryNavItemImageModifier).add(secondaryNavItemImage);
 
       // This should be moved out of here maybe?
-      secondaryNavItemsView.add(secondaryNavItemView);
+      secondaryNavItemsView.add(secondaryNavItemModifier).add(secondaryNavItemView);
     },
     changedAt: function(newDoc, oldDoc, atIndex) {},
     removedAt: function(oldDoc, atIndex) {},
     movedTo: function(doc, fromIndex, toIndex, before) {}
   });
-
-
-  // var secondaryNavItems = [];
-
-  // Deps.autorun(function() {
-  //   secondaryNavItems = getSecondaryNavItems();
-  //   console.log(secondaryNavItems);
-  // });
 
 
   mainView.add(secondaryNavItemsView);
@@ -318,7 +520,7 @@ Meteor.startup(function() {
   //
 
   var homeIntroHeaderHtml = '<span class="introHeaderSlash">/</span> Fast is&nbsp;<span class="introHeaderFuture">future</span>';
-  var homeIntroTextHtml = "We build custom apps and&nbsp;websites fast.<br>With no compromise on quality.<br>We are Skyveri.";
+  var homeIntroTextHtml = "High performance apps and&nbsp;websites. Built fast.<br/>We are Skyveri.";
 
 
   var homeIntroView = new famous.core.View();
@@ -337,8 +539,18 @@ Meteor.startup(function() {
 
   Deps.autorun(function() {
     var width = Session.get("windowWidth");
-    if (width < 530) width -= 40;
+    if (width < 530) width -= 30;
     homeIntroHeaderSurface.setSize([width, false]);
+
+    if (width < MOBILE_WIDTH) {
+      homeIntroHeaderSurface.setProperties({
+        fontWeight: 400
+      });
+    } else {
+      homeIntroHeaderSurface.setProperties({
+        fontWeight: 100
+      });
+    }
   });
 
   var modifier = new Modifier({
@@ -354,7 +566,7 @@ Meteor.startup(function() {
       homeIntroHeaderTransitionableTransform.halt();
     }
 
-    homeIntroHeaderTransitionableTransform.set(transform, {method : 'spring', dampingRatio : 0.65, period : 500});
+    homeIntroHeaderTransitionableTransform.set(transform, {method : 'spring', dampingRatio : 0.7, period : 500});
   });
 
 
@@ -369,7 +581,7 @@ Meteor.startup(function() {
 
   Deps.autorun(function() {
     var width = Session.get("windowWidth");
-    if (width < 530) width -= 40;
+    if (width < 530) width -= 30;
     homeIntroTextSurface.setSize([width, false]);
   });
 
@@ -386,7 +598,7 @@ Meteor.startup(function() {
       homeIntroTextTransitionableTransform.halt();
     }
 
-    homeIntroTextTransitionableTransform.set(transform, {method : 'spring', dampingRatio : 0.65, period : 500});
+    homeIntroTextTransitionableTransform.set(transform, {method : 'spring', dampingRatio : 0.7, period : 500});
   });
 
 
@@ -402,6 +614,20 @@ Meteor.startup(function() {
 });
 
 
+var getLogoTransform = function() {
+  var activeUrl = Session.get("activeUrl");
+  var left,
+      top = 0;
+
+  if (activeUrl == '/') {
+    left = -200;
+  } else {
+    left = 0;
+  }
+
+  return Transform.translate(left, top, 0);
+}
+
 
 var navItemTransform = function(doc) {
   var activeUrl = Session.get("activeUrl");
@@ -412,7 +638,7 @@ var navItemTransform = function(doc) {
 
   var top, left;
 
-  if (offsetFromActive === null) {
+  if (activeUrl === '/') {
 
     // Collapsed (Homepage)
 
@@ -423,12 +649,8 @@ var navItemTransform = function(doc) {
       top = 450 + getSiblingIndex(doc) * 40;
       left = 73;
     } else {
-      top = 320 + getSiblingIndex(doc) * 40;
-      left = 25;
-    }
-
-    // Bold the first nav item
-    if (getSiblingIndex(doc) === 0) {
+      top = 220 + getSiblingIndex(doc) * 40;
+      left = 20;
     }
 
   } else {
@@ -436,8 +658,8 @@ var navItemTransform = function(doc) {
     // Expanded (Non-homepage)
 
     if (offsetFromActive === 1) {
-      top = windowHeight - 47;
-      left = 0;
+      top = windowHeight - 40;
+      left = 15;
     } else {
       top = windowHeight * offsetFromActive;
       left = 111;
@@ -455,8 +677,8 @@ var secondaryNavItemHiddenTransform = function(doc) {
 
   var top, left;
 
-  top = -30;
-  left = 0;
+  top = -150;
+  left = windowWidth * getSiblingIndex(doc) / numberOfSiblings(doc);
 
   return Transform.translate(left, top, 0);
 }
@@ -469,21 +691,45 @@ var secondaryNavItemShownTransform = function(doc) {
   var top, left;
 
   if (activeUrl === "/portfolio") {
-    top = windowHeight / 2 - 150;
-    left = windowWidth * getSiblingIndex(doc) / numberOfSiblings(doc);
-    // width = windowWidth / numberOfSiblings(doc) - 10;
-  // } else if (activeUrl.startsWith("/portfolio")) {
-  //   style.top = -300;
-  //   style.left = windowWidth * getSiblingIndex(doc) / numberOfSiblings(doc);
-  //   style.width = windowWidth / numberOfSiblings(doc) - 10;
+    if (windowWidth > MOBILE_WIDTH) {
+      top = windowHeight / 2 - 120;
+      left = windowWidth * getSiblingIndex(doc) / numberOfSiblings(doc);
+    } else {
+      top = 60 + 70 * getSiblingIndex(doc);
+      left = 30;
+    }
   } else {
-    top = 40;
+    top = 32;
     left = windowWidth * getSiblingIndex(doc) / numberOfSiblings(doc);
-    // width = windowWidth / numberOfSiblings(doc) - 3;
   }
 
   return Transform.translate(left, top, 0);
 }
+
+var secondaryNavItemTextShownTransform = function(doc) {
+  return Transform.scale(1, 1, 1);
+}
+
+var secondaryNavItemTextHiddenTransform = function(doc) {
+  return Transform.scale(0, 0, 0);
+}
+
+var secondaryNavItemBgShownTransform = function(doc) {
+  return Transform.scale(1, 1, 1);
+}
+
+var secondaryNavItemBgHiddenTransform = function(doc) {
+  return Transform.scale(0, 0, 0);
+}
+
+var secondaryNavItemImageShownTransform = function(doc) {
+  return Transform.scale(1, 1, 1);
+}
+
+var secondaryNavItemImageHiddenTransform = function(doc) {
+  return Transform.scale(0, 0, 0);
+}
+
 
 var homeIntroHeaderTransform = function() {
   var windowWidth = Session.get("windowWidth");
@@ -534,11 +780,20 @@ var homeIntroTextTransform = function() {
     top = 240;
     left = getInterpolated(windowWidth, 1050, 80, 1200, 90, false, true);
   } else {
-    top = 100;
-    left = 25;
+    top = 80;
+    left = 20;
   }
 
   return Transform.multiply(Transform.translate(left, top, 0), Transform.scale(scale, scale, 1));
+}
+
+var getNextPage = function(page) {
+  if (page)
+    return Pages.findOne( { parent: page.parent, sortOrder: { $gt: page.sortOrder } } , { sort: { sortOrder:  1 } } );
+}
+
+var getActivePageHeight = function() {
+  return $('.page-active .pageContent').innerHeight();
 }
 
 
@@ -553,23 +808,6 @@ var homeIntroTextTransform = function() {
 var toHTMLWithData = function (kind, data) {
   return UI.toHTML(kind.extend({data: function () { return data; }}));
 };
-
-// function getSecondaryNavItems() {
-//   var homepage = Pages.findOne( { url: "/" } );
-//   var mainPages;
-//   var secondaryNavList;
-
-//   if (! homepage)
-//     return [];
-
-//   mainPages = Pages.find( { parent: homepage._id } ).fetch();
-
-//   secondaryNavList = _.map(mainPages, function(mainPage) {
-//     return Pages.find( { parent: mainPage._id }, { sort: { sortOrder: 1 } } ).fetch();
-//   });
-
-//   return secondaryNavList;
-// }
 
 function getSiblingIndex(page) {
   var index;
@@ -588,9 +826,8 @@ function getMainPageOffsetFromActive(page) {
   var offsetFromActive = null,
       prevMainPages = [],
       nextMainPages = [],
+      activePages = getActivePages(),
       activeMainPage;
-
-  // console.log("getMainPageOffsetFromActive -> activePages ", activePages);
 
   if (activePages.length <= 1)
     return offsetFromActive;
@@ -625,14 +862,27 @@ function getMainPageOffsetFromActive(page) {
   return offsetFromActive;
 }
 
+var getActivePages = function() {
+  var activePages = [];
+  var homepage = Pages.findOne( { url: "/" } );
+  var _page = Pages.findOne( { _id: Session.get("activePageId") } );
+
+  if (_page) {
+    activePages.unshift(_page);
+
+    while (_page.parent) {
+      _page = Pages.findOne( { _id: _page.parent } );
+      activePages.unshift(_page);
+    }
+  }
+
+  return activePages;
+}
+
 function isMainPage(page) {
   var homepage = Pages.findOne( { url: "/" } );
 
   return homepage && EJSON.equals(page.parent, homepage._id);
-}
-
-function isActivePage(page) {
-  return activePage && EJSON.equals(page, activePage);
 }
 
 function hasChildren(page) {

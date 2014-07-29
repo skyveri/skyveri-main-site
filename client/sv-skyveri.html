@@ -22,3 +22,44 @@
   {{/if}}
 {{/if}}
 </template>
+
+<template name="pageWhyUs">
+{{#if contents}}
+  {{#if contents.description}}
+    <div class="pageDescription">{{{contents.description}}}</div>
+  {{/if}}
+
+  {{#if nextPage}}
+    <div style="text-align: right;"><em>Next: <a href="{{nextPage.url}}">{{nextPage.name}}</a></em></div>
+  {{/if}}
+{{/if}}
+</template>
+
+<template name="pagePortfolio">
+{{#if contents}}
+  {{#if tagline}}
+    <h1>{{{tagline}}}</h1>
+  {{/if}}
+
+  {{#if contents.siteUrl}}
+    <div class="">Website: <a href="{{contents.siteUrl}}" target="_blank">{{contents.siteUrl}}</a></div>
+  {{/if}}
+
+  {{#if contents.role}}
+    <div class="">Role: {{{contents.role}}}</div>
+  {{/if}}
+
+  {{#if contents.agency}}
+    <div class="">Agency: {{{contents.agency}}}</div>
+  {{/if}}
+
+  {{#if contents.intro}}
+    <div class="pageIntro">{{{contents.intro}}}</div>
+    <br /><br />
+  {{/if}}
+
+  {{#if contents.description}}
+    <div class="pageDescription">{{{contents.description}}}</div>
+  {{/if}}
+{{/if}}
+</template>
