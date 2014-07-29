@@ -13,8 +13,8 @@
       },
       "famono": {
         "git": "https://github.com/raix/Meteor-famono.git",
-        "tag": "v0.3.14",
-        "commit": "5aa3ff0eccceb6031b2d5c553d597d76dc489a31"
+        "tag": "v0.4.8",
+        "commit": "a0f5882b0d58ba24b85f5c3fe1602a5b3210eaf6"
       },
       "blaze-layout": {
         "git": "https://github.com/EventedMind/blaze-layout.git",
