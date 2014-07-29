@@ -1,6 +1,6 @@
 {
   "packages": {
-    "iron-router": {},
-    "famono": {}
+    "iron-router": "0.7.1",
+    "famono": "0.4.9"
   }
 }
