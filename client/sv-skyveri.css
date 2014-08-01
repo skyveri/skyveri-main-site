@@ -43,7 +43,22 @@ h2 {
   text-indent: 10px;
 }
 
-.logo:hover {
+.logo-arrow,
+.logo-skyveri {
+  position: relative;
+}
+
+.logo-arrow {
+  color: #777;
+  top: 1px;
+}
+
+.logo-skyveri {
+  top: 2px;
+}
+
+.logo:hover .logo-arrow,
+.logo:hover .logo-skyveri {
   color: #F7070B;
 }
 

@@ -152,10 +152,12 @@ Meteor.startup(function() {
 
   var logoSurface = new famous.core.Surface({
     size: [96, 32],
-    content: "Skyveri",
+    content: "<span class='logo-arrow'>&#9668;</span> <span class='logo-skyveri'>Skyveri</span>",
     classes: ["logo"],
     properties: {
-      backgroundColor: "#fff"
+      backgroundColor: "#fff",
+      fontSize: "19px",
+      fontWeight: "400"
     }
   });
 
@@ -256,7 +258,7 @@ Meteor.startup(function() {
     content: "",
     classes: ["navItemBg"],
     properties: {
-      backgroundColor: "#ccc"
+      backgroundColor: "#fff"
     }
   });
 
@@ -384,16 +386,16 @@ Meteor.startup(function() {
         content: "",
         classes: secondaryNavItemBgClasses,
         properties: {
-          backgroundColor: "#fff",
+          backgroundColor: "#ddd",
           opacity: 0.9
         }
       });
 
       Deps.autorun(function () {
         if (doc.url == Session.get("activeUrl")) {
-          secondaryNavItemBg.setProperties({backgroundColor: "#ddd"});
-        } else {
           secondaryNavItemBg.setProperties({backgroundColor: "#fff"});
+        } else {
+          secondaryNavItemBg.setProperties({backgroundColor: "#ddd"});
         }
 
         var height;
@@ -403,7 +405,7 @@ Meteor.startup(function() {
           height = 44;
         }
 
-        secondaryNavItemBg.setSize([Session.get("windowWidth") / numberOfSiblings(doc), height]);
+        secondaryNavItemBg.setSize([Session.get("windowWidth") / numberOfSiblings(doc) - 3, height]);
       });
 
       var secondaryNavItemImageClasses = ["secondaryNavItemImage"];
