@@ -520,6 +520,7 @@ Meteor.startup(function() {
   //
 
   var homeIntroHeaderHtml = '<span class="introHeaderSlash">/</span> Fast is&nbsp;<span class="introHeaderFuture">future</span>';
+  // var homeIntroTextHtml = "We build single-purpose custom&nbsp;apps. Fast.<br/>We are Skyveri.";
   var homeIntroTextHtml = "High performance apps and&nbsp;websites. Built fast.<br/>We are Skyveri.";
 
 
