@@ -182,7 +182,7 @@ Meteor.startup(function() {
     Router.go(url);
   }
 
-  logoSurface.on("touchend", logoClickHandler);
+  logoSurface.on("touchstart", logoClickHandler);
   logoSurface.on("click", logoClickHandler);
 
   mainView.add(logoModifier).add(logoSurface);
@@ -232,7 +232,7 @@ Meteor.startup(function() {
         Router.go(url);
       }
 
-      navItemSurface.on("touchend", navItemClickHandler);
+      navItemSurface.on("touchstart", navItemClickHandler);
       navItemSurface.on("click", navItemClickHandler);
 
       navItemView.add(navItemModifier).add(navItemSurface);
@@ -445,9 +445,9 @@ Meteor.startup(function() {
         Router.go(url);
       }
 
-      secondaryNavItemSurface.on("touchend", secondaryNavItemClick);
-      secondaryNavItemBg.on("touchend", secondaryNavItemClick);
-      secondaryNavItemImage.on("touchend", secondaryNavItemClick);
+      secondaryNavItemSurface.on("touchstart", secondaryNavItemClick);
+      secondaryNavItemBg.on("touchstart", secondaryNavItemClick);
+      secondaryNavItemImage.on("touchstart", secondaryNavItemClick);
 
       secondaryNavItemSurface.on("click", secondaryNavItemClick);
       secondaryNavItemBg.on("click", secondaryNavItemClick);
