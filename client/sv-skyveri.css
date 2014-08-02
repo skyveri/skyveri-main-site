@@ -46,15 +46,14 @@ h2 {
 .logo {
   z-index: 21;
   cursor: pointer;
-  text-indent: 10px;
 }
 
 .logo-skyveri {
   position: relative;
-  top: 4px;
+  top: 6px;
   left: 5px;
   font-style: italic;
-  -webkit-transition: all .1s ease-in-out;
+  -webkit-transition: all .2s ease-in-out;
 }
 
 .logo:hover .logo-skyveri {
@@ -76,7 +75,12 @@ h2 {
   z-index: 11;
 }
 
-.navItem:active {
+.navItem a {
+  color: inherit;
+  border-bottom: none;
+}
+
+.navItem a:active {
   color: #F7070B;
 }
 

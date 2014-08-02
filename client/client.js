@@ -8,9 +8,20 @@ Meteor.subscribe("pages");
 
 var DESKTOP_WIDTH = 1000;
 var MOBILE_WIDTH = 600;
-var TOP_BAR_HEIGHT = 39;
-var LOGO_WIDTH = 110;
+var TOP_BAR_HEIGHT = 42;
 
+Session.set("LOGO_WIDTH", 110);
+
+Deps.autorun(function() {
+  if (Session.get("windowWidth") > MOBILE_WIDTH) {
+    Session.set("LOGO_WIDTH", 110);
+  } else {
+    Session.set("LOGO_WIDTH", 90);
+  }
+});
+
+
+Session.setDefault("navDragPositionX", 0);
 
 
 //
@@ -26,6 +37,7 @@ Router.map(function () {
     path: ':url(*)',
 
     action: function () {
+      Session.set("navDragPositionX", 0);
       setActivePagesWrapper("/" + this.params.url);
     }
   });
@@ -82,6 +94,16 @@ Meteor.startup(function() {
   Transitionable = famous.transitions.Transitionable;
   SpringTransition = famous.transitions.SpringTransition;
   Timer = famous.utilities.Timer;
+
+  GenericSync = famous.inputs.GenericSync;
+  MouseSync = famous.inputs.MouseSync;
+  TouchSync = famous.inputs.TouchSync;
+
+  // register sync classes globally for later use in GenericSync
+  GenericSync.register({
+      "mouse" : MouseSync,
+      "touch" : TouchSync
+  });
 
   Transitionable.registerMethod('spring', SpringTransition);
 
@@ -154,7 +176,6 @@ Meteor.startup(function() {
   //
 
   var logoSurface = new famous.core.Surface({
-    size: [LOGO_WIDTH, TOP_BAR_HEIGHT + 2],
     content: "<span class='logo-skyveri'>Skyveri</span>",
     classes: ["logo"],
     properties: {
@@ -164,12 +185,25 @@ Meteor.startup(function() {
     }
   });
 
+  Deps.autorun(function() {
+    logoSurface.setSize([Session.get("LOGO_WIDTH"), TOP_BAR_HEIGHT + 2]);
+
+    if (Session.get("windowWidth") > MOBILE_WIDTH) {
+      logoSurface.setProperties({textIndent: "12px"});
+    } else {
+      logoSurface.setProperties({textIndent: "2px"});
+    }
+  });
+
   var logoBgSurface = new famous.core.Surface({
-    size: [LOGO_WIDTH + 25, TOP_BAR_HEIGHT + 2],
     classes: ["logo-bg"],
     properties: {
       backgroundColor: "rgb(9, 137, 238)",
     }
+  });
+
+  Deps.autorun(function() {
+    logoBgSurface.setSize([Session.get("LOGO_WIDTH") + 25, TOP_BAR_HEIGHT + 2]);
   });
 
   var logoTransform = new TransitionableTransform(getLogoTransform());
@@ -215,6 +249,54 @@ Meteor.startup(function() {
   //
 
   var navItemsView = new famous.core.View();
+
+  //
+  // Touch scrolling of main nav
+  //
+
+  // funnel touch input into a GenericSync
+  // and only read from the x-displacement
+  var navDragSync = new GenericSync(
+      ["mouse", "touch"],
+      {direction : GenericSync.DIRECTION_X}
+  );
+
+  // navDragPositionX = new Transitionable(0);
+
+  navDragSync.on('update', function(data){
+      // var currentPosition = navDragPositionX.get();
+      var currentPosition = Session.get("navDragPositionX");
+      var delta = data.delta;
+
+      // console.log(navDragPositionX.get());
+      // console.log(delta);
+
+      Session.set("navDragPositionX", currentPosition + delta);
+      // navDragPositionX.set(currentPosition + delta);
+  });
+
+  // navDragSync.on('end', function(data){
+  //     var currentPosition = navDragPositionX.get();
+  //     var velocity = data.velocity;
+
+  //     if (currentPosition > DISPLACEMENT_THRESHOLD || velocity > VELOCITY_THRESHOLD) {
+  //         // transition right if the displacement, or velocity is above
+  //         // the appropriate threshold
+  //         navDragPositionX.set(DISPLACEMENT_LIMIT, {
+  //             method   : 'snap',
+  //             period   : 200,
+  //             velocity : velocity
+  //         });
+  //     }
+  //     else {
+  //         // otherwise transition back to 0
+  //         navDragPositionX.set(0, {
+  //             method   : 'snap',
+  //             period   : 200,
+  //             velocity : velocity
+  //         });
+  //     }
+  // });
 
   var mainPagesCursor = Pages.find({url: /^\/[a-zA-Z0-9._%+-]+$/}, {sort: {sortOrder:1}});
 
@@ -272,9 +354,9 @@ Meteor.startup(function() {
         var activePage = Pages.findOne( { _id: Session.get("activePageId") } );
 
         if ( Session.get("windowWidth") < MOBILE_WIDTH || activePage && activePage.url === '/' ) {
-          navItemSurface.setContent(doc.name);
+          navItemSurface.setContent("<a href='" + doc.url + "'>" + doc.name + "</a>");
         } else {
-          navItemSurface.setContent(doc.name + " &nbsp;&nbsp; <span class='navItemSeparator'>/</span>");
+          navItemSurface.setContent("<a href='" + doc.url + "'>" + doc.name + " &nbsp;&nbsp; <span class='navItemSeparator'>/</span>" + "</a>");
         }
       });
 
@@ -356,7 +438,7 @@ Meteor.startup(function() {
         if (Session.get("windowWidth") > MOBILE_WIDTH) {
           gap = 60;
         } else {
-          gap = 20;
+          gap = 10;
         }
 
         for (var i = 0; i < pageSequence.length; i++) {
@@ -371,29 +453,23 @@ Meteor.startup(function() {
       });
 
       Deps.autorun(function () {
-        // Timer.setTimeout(function(){
-          var navTransition = {method : 'spring', dampingRatio : 0.7, period : 600};
+        var navTransition = {method : 'spring', dampingRatio : 0.7, period : 600};
 
-          leftCoord = Session.get("navItemLeftCoord-" + doc._id) || 0;
+        leftCoord = Session.get("navItemLeftCoord-" + doc._id) || 0;
+        leftCoord += Session.get("navDragPositionX");
 
-          var transform = navItemTransform(doc, leftCoord);
+        var transform = navItemTransform(doc, leftCoord);
 
-          transitionableTransform.halt();
-          transitionableTransform.set(transform, navTransition);
-        // }, 10);
+        transitionableTransform.halt();
+        transitionableTransform.set(transform, navTransition);
       });
+
+
+      navItemSurface.pipe(navDragSync);
+
 
       if (doc.url === '/why-choose-us')
           doc.url = '/why-choose-us/faster';
-
-      var navItemClickHandler = function (e) {
-        var url = doc.url;
-        setActivePagesWrapper(url);
-        Router.go(url);
-      }
-
-      navItemSurface.on("touchstart", navItemClickHandler);
-      navItemSurface.on("click", navItemClickHandler);
 
       navItemView.add(navItemModifier).add(navItemSurface);
 
@@ -407,7 +483,7 @@ Meteor.startup(function() {
 
   // Nav Item Bg
 
-  var navItemBg1Transform = new TransitionableTransform(Transform.translate(LOGO_WIDTH, -100, 0));
+  var navItemBg1Transform = new TransitionableTransform(Transform.translate(Session.get("LOGO_WIDTH"), -100, 0));
 
   var navItemBg1Modifier = new Modifier({
     transform: navItemBg1Transform
@@ -419,7 +495,7 @@ Meteor.startup(function() {
     classes: ["navItemBg"],
     properties: {
       backgroundColor: "#fff",
-      borderBottom: "1px solid #cbc"
+      borderBottom: "1px solid #ccd"
     }
   });
 
@@ -427,9 +503,9 @@ Meteor.startup(function() {
     var navTransition = {method : 'spring', dampingRatio : 0.7, period : 600};
 
     if (Session.get("activeUrl") === '/') {
-      var bgTransform = Transform.translate(LOGO_WIDTH, -100, 0);
+      var bgTransform = Transform.translate(Session.get("LOGO_WIDTH") - 2, -100, 0);
     } else {
-      var bgTransform = Transform.translate(LOGO_WIDTH, 0, 0);
+      var bgTransform = Transform.translate(Session.get("LOGO_WIDTH") - 2, 0, 0);
     }
 
     navItemBg1Transform.halt();
@@ -512,11 +588,11 @@ Meteor.startup(function() {
 
       Deps.autorun(function() {
         var windowWidth = Session.get("windowWidth");
-        var itemWidth = windowWidth / numberOfSiblings(doc) - 4;
+        var itemWidth = windowWidth / numberOfSiblings(doc) - 2;
 
         secondaryNavItemSurface.setSize([itemWidth, 30]);
 
-        secondaryNavItemSurface.setProperties({textIndent: "4px"});
+        secondaryNavItemSurface.setProperties({textIndent: "2px"});
 
         if (windowWidth < MOBILE_WIDTH) {
           secondaryNavItemSurface.setProperties({fontSize: "15px"});
@@ -569,7 +645,7 @@ Meteor.startup(function() {
         classes: secondaryNavItemBgClasses,
         properties: {
           backgroundColor: "#fff",
-          borderBottom: "1px solid #cbc",
+          borderBottom: "1px solid #ccd",
           opacity: 0.9
         }
       });
@@ -858,9 +934,9 @@ var navItemTransform = function(doc, leftCoord) {
     // Expanded (Non-homepage)
 
     if (windowWidth > MOBILE_WIDTH) {
-      top = 3;
+      top = 5;
     } else {
-      top = 7;
+      top = 9;
     }
 
     left = leftCoord;
