@@ -154,31 +154,43 @@ Meteor.startup(function() {
   //
 
   var logoSurface = new famous.core.Surface({
-    size: [LOGO_WIDTH, TOP_BAR_HEIGHT + 4],
-    // content: "<span class='logo-arrow'>&#x2302;</span> <span class='logo-skyveri'>Skyveri</span>",
+    size: [LOGO_WIDTH, TOP_BAR_HEIGHT + 2],
     content: "<span class='logo-skyveri'>Skyveri</span>",
     classes: ["logo"],
     properties: {
-      backgroundColor: "rgb(9, 137, 238)",
-      // borderBottom: "1px solid #cbc",
       color: "#fff",
       fontSize: "22px",
       fontWeight: "500"
     }
   });
 
+  var logoBgSurface = new famous.core.Surface({
+    size: [LOGO_WIDTH + 25, TOP_BAR_HEIGHT + 2],
+    classes: ["logo-bg"],
+    properties: {
+      backgroundColor: "rgb(9, 137, 238)",
+    }
+  });
+
   var logoTransform = new TransitionableTransform(getLogoTransform());
+  var logoBgTransform = new TransitionableTransform(getLogoBgTransform());
 
   var logoModifier = new Modifier({
     transform: logoTransform
   });
 
+  var logoBgModifier = new Modifier({
+    transform: logoBgTransform
+  });
+
   Deps.autorun(function () {
-    var transform = getLogoTransform();
     var logoTransition = {method : 'spring', dampingRatio : 0.7, period : 600};
 
     logoTransform.halt();
-    logoTransform.set(transform, logoTransition);
+    logoTransform.set(getLogoTransform(), logoTransition);
+
+    logoBgTransform.halt();
+    logoBgTransform.set(getLogoBgTransform(), logoTransition);
   });
 
   var logoClickHandler = function (e) {
@@ -191,6 +203,10 @@ Meteor.startup(function() {
   logoSurface.on("touchstart", logoClickHandler);
   logoSurface.on("click", logoClickHandler);
 
+  logoBgSurface.on("touchstart", logoClickHandler);
+  logoBgSurface.on("click", logoClickHandler);
+
+  mainView.add(logoBgModifier).add(logoBgSurface);
   mainView.add(logoModifier).add(logoSurface);
 
 
@@ -225,6 +241,12 @@ Meteor.startup(function() {
         if ( ! activePage)
           return;
 
+        if (activePage.url === '/' && doc.machineName !== 'whyChooseUs') {
+          navItemSurface.setProperties({fontWeight: "300"});
+        } else {
+          navItemSurface.setProperties({fontWeight: "400"});
+        }
+
         if (Session.get("windowWidth") > MOBILE_WIDTH || activePage.url === '/') {
           navItemSurface.setProperties({fontSize: "22px"});
         } else {
@@ -237,7 +259,7 @@ Meteor.startup(function() {
 
         if (activePage && activePage.url !== '/') {
           if ( EJSON.equals(doc._id, activePage._id) ||  EJSON.equals(doc._id, activePage.parent) ) {
-            navItemSurface.setProperties({color: "#777"});
+            navItemSurface.setProperties({color: "#F7070B"});
           } else {
             navItemSurface.setProperties({color: "#333"});
           }
@@ -320,7 +342,7 @@ Meteor.startup(function() {
           if (getSiblingIndex(navItemPage) === 0) {
             activePageLeftCoord = 125;
           } else {
-            activePageLeftCoord = 165;
+            activePageLeftCoord = 200;
           }
 
         }
@@ -504,7 +526,7 @@ Meteor.startup(function() {
         secondaryNavItemSurface.setProperties({fontStyle: "italic"});
 
         if (doc.url == Session.get("activeUrl")) {
-          secondaryNavItemSurface.setProperties({color: "#777"});
+          secondaryNavItemSurface.setProperties({color: "#F7070B"});
           secondaryNavItemSurface.setProperties({cursor: "default"});
         } else {
           secondaryNavItemSurface.setProperties({color: "rgb(9, 137, 238)"});
@@ -786,6 +808,20 @@ var getLogoTransform = function() {
   }
 
   return Transform.translate(left, top, 0);
+}
+
+var getLogoBgTransform = function() {
+  var activeUrl = Session.get("activeUrl");
+  var left,
+      top = 0;
+
+  if (activeUrl == '/') {
+    left = -200;
+  } else {
+    left = -10;
+  }
+
+  return Transform.multiply( Transform.skewX(-Math.PI/8), Transform.translate(left, top, 0) );
 }
 
 

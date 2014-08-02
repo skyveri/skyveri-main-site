@@ -44,28 +44,26 @@ h2 {
  */
 
 .logo {
-  z-index: 20;
+  z-index: 21;
   cursor: pointer;
   text-indent: 10px;
 }
 
-.logo-arrow,
+.logo-bg {
+  z-index: 20;
+  cursor: pointer;
+}
+
 .logo-skyveri {
   position: relative;
 }
 
-.logo-arrow {
-  color: #777;
-  top: 3px;
-}
-
 .logo-skyveri {
-  top: 5px;
+  top: 4px;
   left: 5px;
   font-style: italic;
 }
 
-.logo:hover .logo-arrow,
 .logo:hover .logo-skyveri {
   /*color: #F7070B;*/
 }
@@ -86,10 +84,6 @@ h2 {
 
 .navItemSeparator {
   color: #aaa;
-}
-
-.navItem.why-choose-us {
-  font-weight: 400;
 }
 
 .navItemBg {
@@ -150,7 +144,6 @@ h2 {
 
 .homeIntroHeader {
   font-size: 100px;
-  font-weight: 100;
   text-transform: uppercase;
   white-space: nowrap;
 }
