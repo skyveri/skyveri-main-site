@@ -334,15 +334,17 @@ Meteor.startup(function() {
           if (getSiblingIndex(navItemPage) === 0) {
             activePageLeftCoord = 150;
           } else {
-            activePageLeftCoord = 250;
+            activePageLeftCoord = 370;
           }
 
         } else {
 
           if (getSiblingIndex(navItemPage) === 0) {
             activePageLeftCoord = 125;
+          } else if (activePage.url === '/contact') {
+            activePageLeftCoord = Session.get("windowWidth") - 100;
           } else {
-            activePageLeftCoord = 200;
+            activePageLeftCoord = getInterpolated(Session.get("windowWidth"), 300, 150, 1200, 300);
           }
 
         }
@@ -510,9 +512,11 @@ Meteor.startup(function() {
 
       Deps.autorun(function() {
         var windowWidth = Session.get("windowWidth");
-        var itemWidth = windowWidth / numberOfSiblings(doc);
+        var itemWidth = windowWidth / numberOfSiblings(doc) - 4;
 
-        secondaryNavItemSurface.setSize([itemWidth - 10, 30]);
+        secondaryNavItemSurface.setSize([itemWidth, 30]);
+
+        secondaryNavItemSurface.setProperties({textIndent: "4px"});
 
         if (windowWidth < MOBILE_WIDTH) {
           secondaryNavItemSurface.setProperties({fontSize: "15px"});

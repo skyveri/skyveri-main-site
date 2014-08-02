@@ -49,23 +49,21 @@ h2 {
   text-indent: 10px;
 }
 
-.logo-bg {
-  z-index: 20;
-  cursor: pointer;
-}
-
 .logo-skyveri {
   position: relative;
-}
-
-.logo-skyveri {
   top: 4px;
   left: 5px;
   font-style: italic;
+  -webkit-transition: all .1s ease-in-out;
 }
 
 .logo:hover .logo-skyveri {
-  /*color: #F7070B;*/
+  margin-left: -25px;
+}
+
+.logo-bg {
+  z-index: 20;
+  cursor: pointer;
 }
 
 /*
