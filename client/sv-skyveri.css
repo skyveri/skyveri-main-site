@@ -7,9 +7,15 @@ body {
 }
 
 a {
-  color: inherit;
+  color: rgb(9, 137, 238);
   text-decoration: none;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid rgb(9, 137, 238);
+  -webkit-transition: all .1s ease-in-out;
+}
+
+a:hover {
+  color: #F7070B;
+  border-bottom-color: #F7070B;
 }
 
 a img {
@@ -38,7 +44,7 @@ h2 {
  */
 
 .logo {
-  z-index: 12;
+  z-index: 20;
   cursor: pointer;
   text-indent: 10px;
 }
@@ -50,16 +56,18 @@ h2 {
 
 .logo-arrow {
   color: #777;
-  top: 1px;
+  top: 3px;
 }
 
 .logo-skyveri {
-  top: 2px;
+  top: 5px;
+  left: 5px;
+  font-style: italic;
 }
 
 .logo:hover .logo-arrow,
 .logo:hover .logo-skyveri {
-  color: #F7070B;
+  /*color: #F7070B;*/
 }
 
 /*
@@ -74,6 +82,10 @@ h2 {
 
 .navItem:active {
   color: #F7070B;
+}
+
+.navItemSeparator {
+  color: #aaa;
 }
 
 .navItem.why-choose-us {

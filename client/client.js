@@ -8,6 +8,8 @@ Meteor.subscribe("pages");
 
 var DESKTOP_WIDTH = 1000;
 var MOBILE_WIDTH = 600;
+var TOP_BAR_HEIGHT = 39;
+var LOGO_WIDTH = 110;
 
 
 
@@ -79,6 +81,7 @@ Meteor.startup(function() {
   TransitionableTransform = famous.transitions.TransitionableTransform;
   Transitionable = famous.transitions.Transitionable;
   SpringTransition = famous.transitions.SpringTransition;
+  Timer = famous.utilities.Timer;
 
   Transitionable.registerMethod('spring', SpringTransition);
 
@@ -151,13 +154,16 @@ Meteor.startup(function() {
   //
 
   var logoSurface = new famous.core.Surface({
-    size: [96, 32],
-    content: "<span class='logo-arrow'>&#9668;</span> <span class='logo-skyveri'>Skyveri</span>",
+    size: [LOGO_WIDTH, TOP_BAR_HEIGHT + 4],
+    // content: "<span class='logo-arrow'>&#x2302;</span> <span class='logo-skyveri'>Skyveri</span>",
+    content: "<span class='logo-skyveri'>Skyveri</span>",
     classes: ["logo"],
     properties: {
-      backgroundColor: "#fff",
-      fontSize: "19px",
-      fontWeight: "400"
+      backgroundColor: "rgb(9, 137, 238)",
+      // borderBottom: "1px solid #cbc",
+      color: "#fff",
+      fontSize: "22px",
+      fontWeight: "500"
     }
   });
 
@@ -210,24 +216,154 @@ Meteor.startup(function() {
 
       var navItemSurface = new famous.core.Surface({
         size: [false, false],
-        content: doc.name,
         classes: ["navItem"].concat(doc.cls || [])
       });
 
       Deps.autorun(function () {
-        var navTransition = {method : 'spring', dampingRatio : 0.7, period : 600};
-        var transform = navItemTransform(doc);
+        var activePage = Pages.findOne( { _id: Session.get("activePageId") } );
 
-        transitionableTransform.halt();
-        transitionableTransform.set(transform, navTransition);
+        if ( ! activePage)
+          return;
+
+        if (Session.get("windowWidth") > MOBILE_WIDTH || activePage.url === '/') {
+          navItemSurface.setProperties({fontSize: "22px"});
+        } else {
+          navItemSurface.setProperties({fontSize: "16px"});
+        }
       });
+
+      Deps.autorun(function () {
+        var activePage = Pages.findOne( { _id: Session.get("activePageId") } );
+
+        if (activePage && activePage.url !== '/') {
+          if ( EJSON.equals(doc._id, activePage._id) ||  EJSON.equals(doc._id, activePage.parent) ) {
+            navItemSurface.setProperties({color: "#777"});
+          } else {
+            navItemSurface.setProperties({color: "#333"});
+          }
+        } else {
+          navItemSurface.setProperties({color: "#333"});
+        }
+      });
+
+      Deps.autorun(function () {
+        var activePage = Pages.findOne( { _id: Session.get("activePageId") } );
+
+        if ( Session.get("windowWidth") < MOBILE_WIDTH || activePage && activePage.url === '/' ) {
+          navItemSurface.setContent(doc.name);
+        } else {
+          navItemSurface.setContent(doc.name + " &nbsp;&nbsp; <span class='navItemSeparator'>/</span>");
+        }
+      });
+
+      Timer.setTimeout(function(){
+        if (navItemSurface._currTarget)
+          Session.set("navItemWidth-" + doc._id, navItemSurface._currTarget.offsetWidth);
+      }, 1000);
+
+      Deps.autorun(function () {
+        var activePageId = Session.get("activePageId");
+
+        Timer.setTimeout(function(){
+          if (navItemSurface._currTarget)
+            Session.set("navItemWidth-" + doc._id, navItemSurface._currTarget.offsetWidth);
+        }, 100);
+      });
+
+      Deps.autorun(function () {
+        var activePage = Pages.findOne( { _id: Session.get("activePageId") } );
+        var pageSequence = [];
+        var prevPageSequence = [];
+        var iterPage;
+        var activePageLeftCoord;
+        var navItemPage;
+
+        if ( ! activePage)
+          return;
+
+        if ( EJSON.equals(doc._id, activePage._id) ||  EJSON.equals(doc._id, activePage.parent) ) {
+
+          iterPage = doc;
+
+          while (iterPage) {
+            pageSequence.push(iterPage);
+            iterPage = getNextPage(iterPage);
+          }
+
+          iterPage = getPrevPage(doc);
+
+          while (iterPage) {
+            prevPageSequence.push(iterPage);
+            iterPage = getPrevPage(iterPage);
+          }
+        }
+
+        if (isMainPage(activePage)) {
+          navItemPage = activePage;
+        } else {
+          navItemPage = Pages.findOne( { _id: activePage.parent } );
+        }
+
+        if ( ! navItemPage)
+          return;
+
+        if (Session.get("windowWidth") > MOBILE_WIDTH) {
+
+          if (getSiblingIndex(navItemPage) === 0) {
+            activePageLeftCoord = 150;
+          } else {
+            activePageLeftCoord = 250;
+          }
+
+        } else {
+
+          if (getSiblingIndex(navItemPage) === 0) {
+            activePageLeftCoord = 125;
+          } else {
+            activePageLeftCoord = 165;
+          }
+
+        }
+
+        var nextLeftCoord = activePageLeftCoord;
+        var prevLeftCoord = activePageLeftCoord;
+
+        var gap;
+        if (Session.get("windowWidth") > MOBILE_WIDTH) {
+          gap = 60;
+        } else {
+          gap = 20;
+        }
+
+        for (var i = 0; i < pageSequence.length; i++) {
+          Session.set("navItemLeftCoord-" + pageSequence[i]._id, nextLeftCoord);
+          nextLeftCoord += Session.get("navItemWidth-" + pageSequence[i]._id) + gap;
+        };
+
+        for (var i = 0; i < prevPageSequence.length; i++) {
+          prevLeftCoord -= Session.get("navItemWidth-" + prevPageSequence[i]._id) + gap;
+          Session.set("navItemLeftCoord-" + prevPageSequence[i]._id, prevLeftCoord);
+        };
+      });
+
+      Deps.autorun(function () {
+        // Timer.setTimeout(function(){
+          var navTransition = {method : 'spring', dampingRatio : 0.7, period : 600};
+
+          leftCoord = Session.get("navItemLeftCoord-" + doc._id) || 0;
+
+          var transform = navItemTransform(doc, leftCoord);
+
+          transitionableTransform.halt();
+          transitionableTransform.set(transform, navTransition);
+        // }, 10);
+      });
+
+      if (doc.url === '/why-choose-us')
+          doc.url = '/why-choose-us/faster';
 
       var navItemClickHandler = function (e) {
         var url = doc.url;
-
-        if (url === '/why-choose-us')
-          url = '/why-choose-us/faster';
-
         setActivePagesWrapper(url);
         Router.go(url);
       }
@@ -247,18 +383,19 @@ Meteor.startup(function() {
 
   // Nav Item Bg
 
-  var navItemBg1Transform = new TransitionableTransform(Transform.translate(96, -100, 0));
+  var navItemBg1Transform = new TransitionableTransform(Transform.translate(LOGO_WIDTH, -100, 0));
 
   var navItemBg1Modifier = new Modifier({
     transform: navItemBg1Transform
   });
 
   var navItemBg1Surface = new famous.core.Surface({
-    size: [undefined, 32],
+    size: [undefined, TOP_BAR_HEIGHT],
     content: "",
     classes: ["navItemBg"],
     properties: {
-      backgroundColor: "#fff"
+      backgroundColor: "#fff",
+      borderBottom: "1px solid #cbc"
     }
   });
 
@@ -266,9 +403,9 @@ Meteor.startup(function() {
     var navTransition = {method : 'spring', dampingRatio : 0.7, period : 600};
 
     if (Session.get("activeUrl") === '/') {
-      var bgTransform = Transform.translate(96, -100, 0);
+      var bgTransform = Transform.translate(LOGO_WIDTH, -100, 0);
     } else {
-      var bgTransform = Transform.translate(96, 0, 0);
+      var bgTransform = Transform.translate(LOGO_WIDTH, 0, 0);
     }
 
     navItemBg1Transform.halt();
@@ -277,37 +414,38 @@ Meteor.startup(function() {
 
   navItemsView.add(navItemBg1Modifier).add(navItemBg1Surface);
 
-  // Nav Item Bg 2
+  // // Nav Item Bg 2
 
-  var navItemBg2Transform = new TransitionableTransform(Transform.translate(0, Session.get("windowHeight") + 100, 0));
+  // var navItemBg2Transform = new TransitionableTransform(Transform.translate(0, Session.get("windowHeight") + 100, 0));
 
-  var navItemBg2Modifier = new Modifier({
-    transform: navItemBg2Transform
-  });
+  // var navItemBg2Modifier = new Modifier({
+  //   transform: navItemBg2Transform
+  // });
 
-  var navItemBg2Surface = new famous.core.Surface({
-    size: [undefined, 45],
-    content: "",
-    classes: ["navItemBg"],
-    properties: {
-      backgroundColor: "#ccc"
-    }
-  });
+  // var navItemBg2Surface = new famous.core.Surface({
+  //   size: [undefined, 45],
+  //   content: "Next section: ",
+  //   classes: ["navItemBg"],
+  //   properties: {
+  //     borderTop: "1px solid #F7070B",
+  //     backgroundColor: "#fff"
+  //   }
+  // });
 
-  Deps.autorun(function () {
-    var navTransition = {method : 'spring', dampingRatio : 0.7, period : 600};
+  // Deps.autorun(function () {
+  //   var navTransition = {method : 'spring', dampingRatio : 0.7, period : 600};
 
-    if (Session.get("activeUrl") === '/' || Session.get("activeUrl") === '/contact') {
-      var bgTransform = Transform.translate(0, Session.get("windowHeight") + 100, 0);
-    } else {
-      var bgTransform = Transform.translate(0, Session.get("windowHeight") - 45, 0);
-    }
+  //   if (Session.get("activeUrl") === '/' || Session.get("activeUrl") === '/contact') {
+  //     var bgTransform = Transform.translate(0, Session.get("windowHeight") + 100, 0);
+  //   } else {
+  //     var bgTransform = Transform.translate(0, Session.get("windowHeight") - 45, 0);
+  //   }
 
-    navItemBg2Transform.halt();
-    navItemBg2Transform.set(bgTransform, navTransition);
-  });
+  //   navItemBg2Transform.halt();
+  //   navItemBg2Transform.set(bgTransform, navTransition);
+  // });
 
-  navItemsView.add(navItemBg2Modifier).add(navItemBg2Surface);
+  // navItemsView.add(navItemBg2Modifier).add(navItemBg2Surface);
 
 
   mainView.add(navItemsView);
@@ -342,7 +480,10 @@ Meteor.startup(function() {
       var secondaryNavItemSurface = new famous.core.Surface({
         size: [false, false],
         content: doc.name,
-        classes: secondaryNavItemClasses
+        classes: secondaryNavItemClasses,
+        properties: {
+          padding: "3px 0"
+        }
       });
 
       Deps.autorun(function() {
@@ -353,6 +494,21 @@ Meteor.startup(function() {
 
         if (windowWidth < MOBILE_WIDTH) {
           secondaryNavItemSurface.setProperties({fontSize: "15px"});
+        } else {
+          secondaryNavItemSurface.setProperties({fontSize: "20px"});
+        }
+      });
+
+      Deps.autorun(function() {
+        secondaryNavItemSurface.setProperties({fontWeight: "400"});
+        secondaryNavItemSurface.setProperties({fontStyle: "italic"});
+
+        if (doc.url == Session.get("activeUrl")) {
+          secondaryNavItemSurface.setProperties({color: "#777"});
+          secondaryNavItemSurface.setProperties({cursor: "default"});
+        } else {
+          secondaryNavItemSurface.setProperties({color: "rgb(9, 137, 238)"});
+          secondaryNavItemSurface.setProperties({cursor: "pointer"});
         }
       });
 
@@ -386,26 +542,27 @@ Meteor.startup(function() {
         content: "",
         classes: secondaryNavItemBgClasses,
         properties: {
-          backgroundColor: "#ddd",
+          backgroundColor: "#fff",
+          borderBottom: "1px solid #cbc",
           opacity: 0.9
         }
       });
 
       Deps.autorun(function () {
         if (doc.url == Session.get("activeUrl")) {
-          secondaryNavItemBg.setProperties({backgroundColor: "#fff"});
+          // secondaryNavItemBg.setProperties({backgroundColor: "#fff"});
         } else {
-          secondaryNavItemBg.setProperties({backgroundColor: "#ddd"});
+          // secondaryNavItemBg.setProperties({backgroundColor: "#ddd"});
         }
 
         var height;
         if (Session.get("windowWidth") > MOBILE_WIDTH) {
-          height = 32;
+          height = 35;
         } else {
-          height = 44;
+          height = 48;
         }
 
-        secondaryNavItemBg.setSize([Session.get("windowWidth") / numberOfSiblings(doc) - 3, height]);
+        secondaryNavItemBg.setSize([Session.get("windowWidth") / numberOfSiblings(doc), height]);
       });
 
       var secondaryNavItemImageClasses = ["secondaryNavItemImage"];
@@ -632,7 +789,7 @@ var getLogoTransform = function() {
 }
 
 
-var navItemTransform = function(doc) {
+var navItemTransform = function(doc, leftCoord) {
   var activeUrl = Session.get("activeUrl");
   var windowWidth = Session.get("windowWidth");
   var windowHeight = Session.get("windowHeight");
@@ -660,13 +817,13 @@ var navItemTransform = function(doc) {
 
     // Expanded (Non-homepage)
 
-    if (offsetFromActive === 1) {
-      top = windowHeight - 40;
-      left = 15;
+    if (windowWidth > MOBILE_WIDTH) {
+      top = 3;
     } else {
-      top = windowHeight * offsetFromActive;
-      left = 111;
+      top = 7;
     }
+
+    left = leftCoord;
 
   }
 
@@ -702,7 +859,7 @@ var secondaryNavItemShownTransform = function(doc) {
       left = 30;
     }
   } else {
-    top = 32;
+    top = TOP_BAR_HEIGHT;
     left = windowWidth * getSiblingIndex(doc) / numberOfSiblings(doc);
   }
 
@@ -788,11 +945,6 @@ var homeIntroTextTransform = function() {
   }
 
   return Transform.multiply(Transform.translate(left, top, 0), Transform.scale(scale, scale, 1));
-}
-
-var getNextPage = function(page) {
-  if (page)
-    return Pages.findOne( { parent: page.parent, sortOrder: { $gt: page.sortOrder } } , { sort: { sortOrder:  1 } } );
 }
 
 var getActivePageHeight = function() {
@@ -898,6 +1050,11 @@ function getPageIdByUrl(url) {
     return activePage._id;
   else
     return undefined;
+}
+
+function getPrevPage(page) {
+  if (page)
+    return Pages.findOne( { parent: page.parent, sortOrder: { $lt: page.sortOrder } } , { sort: { sortOrder:  -1 } } );
 }
 
 function getNextPage(page) {
