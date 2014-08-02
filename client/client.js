@@ -141,7 +141,11 @@ Meteor.startup(function() {
 
       Deps.autorun(function() {
         var pageData = doc;
-        pageData.nextPage = getNextPage(doc);
+        if (doc.url === '/why-choose-us/ux-design') {
+          pageData.nextPage = Pages.findOne( { url: "/portfolio" } );
+        } else {
+          pageData.nextPage = getNextPage(doc);
+        }
 
         pageSurface.setContent("<div class='pageContent'>" + toHTMLWithData(Template[doc.template || 'pageDefault'], pageData) + "</div>");
       });
@@ -165,7 +169,10 @@ Meteor.startup(function() {
   });
 
   Deps.autorun(function() {
-    pagesView.show(pageViews[Session.get("activePageId")]);
+    if (pageViews[Session.get("activePageId")]) {
+      var pageView = pageViews[Session.get("activePageId")];
+      pagesView.show(pageView);
+    }
   });
 
   mainView.add(pagesView);

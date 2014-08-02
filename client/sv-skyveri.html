@@ -63,3 +63,14 @@
   {{/if}}
 {{/if}}
 </template>
+
+<template name="pageAbout">
+{{#if contents}}
+  {{#if contents.description}}
+    <div class="pageDescription">{{{contents.description}}}</div>
+  {{/if}}
+
+  <br />
+  <p><em><a href="/contact">Contact us today for a free consultation</a></em></p>
+{{/if}}
+</template>
