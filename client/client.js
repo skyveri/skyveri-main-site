@@ -278,6 +278,16 @@ Meteor.startup(function() {
       // console.log(navDragPositionX.get());
       // console.log(delta);
 
+      if (currentPosition > Session.get("windowWidth")) {
+        currentPosition -= 1;
+        delta = 0;
+      }
+
+      if (currentPosition < - Session.get("windowWidth")) {
+        currentPosition += 1;
+        delta = 0;
+      }
+
       Session.set("navDragPositionX", currentPosition + delta);
       // navDragPositionX.set(currentPosition + delta);
   });
@@ -432,6 +442,8 @@ Meteor.startup(function() {
             activePageLeftCoord = 125;
           } else if (activePage.url === '/contact') {
             activePageLeftCoord = Session.get("windowWidth") - 100;
+          } else if (activePage.url === '/services') {
+            activePageLeftCoord = Session.get("windowWidth") - 195;
           } else {
             activePageLeftCoord = getInterpolated(Session.get("windowWidth"), 300, 150, 1200, 300);
           }
@@ -471,9 +483,7 @@ Meteor.startup(function() {
         transitionableTransform.set(transform, navTransition);
       });
 
-
       navItemSurface.pipe(navDragSync);
-
 
       if (doc.url === '/why-choose-us')
           doc.url = '/why-choose-us/faster';
@@ -505,6 +515,8 @@ Meteor.startup(function() {
       borderBottom: "1px solid #ccd"
     }
   });
+
+  navItemBg1Surface.pipe(navDragSync);
 
   Deps.autorun(function () {
     var navTransition = {method : 'spring', dampingRatio : 0.7, period : 600};
